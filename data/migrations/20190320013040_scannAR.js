@@ -63,7 +63,6 @@ exports.up = function(knex, Promise) {
         .inTable("products")
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
-      column.string("shippedFrom", 512).defaultTo("");
       column.string("shippedTo", 512).defaultTo("");
       column.string("trackingNumber", 128).defaultTo("");
       column.string("carrierName", 128).defaultTo("");
