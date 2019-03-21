@@ -32,7 +32,6 @@ exports.up = function(knex, Promise) {
       column.integer("width");
       column.integer("height");
       column.integer("value");
-      column.string("arAsset", 512).defaultTo("");
       column.string("manufacturerId", 512).defaultTo("");
       column.boolean("fragile").defaultTo(false);
       column
@@ -43,7 +42,7 @@ exports.up = function(knex, Promise) {
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
     })
-    .createTable("product_images", column => {
+    .createTable("product_assets", column => {
       column.increments("identifier");
       column.string("imageURL", 512).defaultTo("");
       column
@@ -56,7 +55,6 @@ exports.up = function(knex, Promise) {
     })
     .createTable("shipments", column => {
       column.increments("identifier");
-      column.boolean("arrived").defaultTo(false);
       column.date("dateShipped", 24);
       column
         .integer("productId")
@@ -66,24 +64,12 @@ exports.up = function(knex, Promise) {
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
       column.string("shippedFrom", 512).defaultTo("");
+      column.string("shippedTo", 512).defaultTo("");
       column.string("trackingNumber", 128).defaultTo("");
       column.string("carrierName", 128).defaultTo("");
       column.string("shippingType", 128).defaultTo("");
+      column.integer("status")
     })
-    .createTable("shippingTo", column => {
-      column.increments("identifier");
-      column.string("customerName", 128).notNullable();
-      column.string("customerEmail", 128).defaultTo("");
-      column.string("customerAddress", 512).notNullable();
-      column.string("deliveryInstructions", 512).defaultTo("");
-      column
-        .integer("shipmentId")
-        .unsigned()
-        .references("id")
-        .inTable("shipments")
-        .onDelete("CASCADE")
-        .onUpdate("CASCADE");
-    });
 };
 
 exports.down = function(knex, Promise) {
@@ -91,7 +77,6 @@ exports.down = function(knex, Promise) {
     .dropTableIfExists("users")
     .dropTableIfExists("user_addresses")
     .dropTableIfExists("products")
-    .dropTableIfExists("product_images")
+    .dropTableIfExists("product_assets")
     .dropTableIfExists("shipments")
-    .dropTableIfExists("shippingTo");
 };
