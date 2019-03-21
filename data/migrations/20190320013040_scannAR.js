@@ -11,18 +11,6 @@ exports.up = function(knex, Promise) {
       column.string("email", 128).defaultTo("");
       column.boolean("oAuth").defaultTo(false);
     })
-    .createTable("user_addresses", column => {
-      column.increments("identifier");
-      column.string("label", 12).notNullable();
-      column.string("address", 512).notNullable();
-      column
-        .integer("userId")
-        .unsigned()
-        .references("id")
-        .inTable("users")
-        .onDelete("CASCADE")
-        .onUpdate("CASCADE");
-    })
     .createTable("products", column => {
       column.increments("identifier");
       column.string("name", 128).notNullable();
@@ -44,7 +32,8 @@ exports.up = function(knex, Promise) {
     })
     .createTable("product_assets", column => {
       column.increments("identifier");
-      column.string("imageURL", 512).defaultTo("");
+      column.string("label", 24).defaultTo("")
+      column.string("url", 512).defaultTo("");
       column
         .integer("productId")
         .unsigned()
@@ -74,7 +63,6 @@ exports.up = function(knex, Promise) {
 exports.down = function(knex, Promise) {
   return knex.schema
     .dropTableIfExists("users")
-    .dropTableIfExists("user_addresses")
     .dropTableIfExists("products")
     .dropTableIfExists("product_assets")
     .dropTableIfExists("shipments")
