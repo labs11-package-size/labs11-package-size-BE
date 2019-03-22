@@ -6,7 +6,6 @@ const { jwtSecret } = require('../config/secrets.js')
 
 router.get("/", authenticate, (req, res) => {
     const userId = req.decoded.subject
-    console.log(userId)
   db.getProducts(userId)
     .then(products => {
       res.status(200).json(products);
