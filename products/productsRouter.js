@@ -27,16 +27,4 @@ router.post("/add", authenticate, (req, res) => {
     });
 });
 
-router.post("/listusers", authenticate, (req, res) => {
-    const userId = req.decoded.subject
-    const token = req.headers.authorization
-    jwt.verify(token, jwtSecret, err => {
-      if (err) {
-        res.send(`${userId}`);
-      } else {
-        res.send(`${userId}`);
-      }
-    });
-  });
-
   module.exports = router

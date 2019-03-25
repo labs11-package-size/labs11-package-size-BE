@@ -14,12 +14,12 @@ exports.up = function(knex, Promise) {
     .createTable("products", column => {
       column.increments("identifier");
       column.string("name", 128).notNullable();
-      column.string("description", 512).defaultTo("");
-      column.integer("weight");
-      column.integer("length");
-      column.integer("width");
-      column.integer("height");
-      column.integer("value");
+      column.string("productDescription", 512).defaultTo("");
+      column.decimal("weight", 9, 2);
+      column.decimal("length", 9, 2);
+      column.decimal("width", 9, 2);
+      column.decimal("height", 9, 2);
+      column.decimal("value", 9, 2);
       column.string("manufacturerId", 512).defaultTo("");
       column.boolean("fragile").defaultTo(false);
       column
