@@ -4,7 +4,9 @@ module.exports = {
   getProducts,
   addProduct,
   deleteProduct,
-  editProduct
+  editProduct,
+  getAssets,
+  addAsset
 };
 
 function getProducts(userId) {
@@ -30,8 +32,20 @@ async function editProduct(identifier, userId, changes){
   const edited = await db('products').where({ identifier }).update({...changes, userId})
   if (edited) return getProducts(userId)
   return null;
+}
 
+async function getAssets(identifier) {
+  const found = await db("productassets").where({ identifier })
+  if (found) return found
+  return null;
+}
 
+async function addAsset(identifier, request) {
+  const found = await db("products").where({ identifier })
+  if (found) return db("productassets").insert({
+    ...request,
+    productId: identifier
+  })
 }
 
 function findById(table, identifier) {

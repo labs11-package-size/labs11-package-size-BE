@@ -81,6 +81,8 @@ server.get("/", (req, res) => {
       <h3> PUT /api/products/edit/:id - Edits a product based on the URL parameter</h3>
       <p>Expects all the same request body properties as add product. None of these are required, only the ones you want to update. <br><br> Edits a product with identifier matching the URL parameter. Returns an array of JSON
       objects, which represent all products for current user after update changes.</p>
+      <h3> GET /api/products/assets/:id - Returns a list of all assets for product provided in URL</h3>
+      <h3> POST /api/products/assets/add/:id - Adds a product asset.</h3>
       <hr>
       <h2>
       Shipments Routes
