@@ -8,7 +8,11 @@ module.exports = {
 };
 
 function getShipments(userId) {
-  return db("shipments").where({ userId });
+  return db("shipments")
+  .select("shipments.*")
+  .join("products")
+  .where({ userId });
+
 }
 
 async function addFromTracking(product, userId) {
