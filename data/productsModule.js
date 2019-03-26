@@ -18,7 +18,7 @@ async function addProduct(product, userId) {
     ...product,
     userId: userId
   });
-  return findById("products", id);
+  return getProducts(userId)
   // return db("products").where({ userId });
 }
 

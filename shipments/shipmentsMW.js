@@ -13,7 +13,7 @@ function uspsTracking(req, res, next) {
         if (err)
         return res
           .status(401)
-          .json({ message: "The tracking number supplied is not valid" });
+          .json({ error: "The tracking number supplied is not valid" });
       req.trackingObject = {
         dateShipped: data.activities[
           data.activities.length - 1
@@ -29,7 +29,7 @@ function uspsTracking(req, res, next) {
     });
   } else {
     return res.status(400).json({
-      message:
+      error:
         "Invalid Request, please include both a trackingNumber and productId in the request body"
     });
   }

@@ -16,7 +16,7 @@ function getShipments(userId) {
 
 async function addShipment(shipment) {
   const [id] = await db("shipments").insert(shipment);
-  return findById("shipments", id);
+  return getShipments(userId)
 }
 
 async function deleteShipment(identifier, userId) {
