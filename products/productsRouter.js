@@ -7,8 +7,8 @@ const { jwtSecret } = require('../config/secrets.js')
 router.get("/", authenticate, (req, res) => {
     const userId = req.decoded.subject
   db.getProducts(userId)
-    .then(products => {
-      res.status(200).json(products);
+    .then(found => {
+      res.status(200).json(found);
     })
     .catch(({ code, message }) => {
         res.status(code).json({ message });
