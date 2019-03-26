@@ -14,7 +14,7 @@ function getShipments(userId) {
   .where({ userId })
 }
 
-async function addShipment(shipment, userId) {
+async function addShipment(shipment) {
   const [id] = await db("shipments").insert(shipment);
   return findById("shipments", id);
 }

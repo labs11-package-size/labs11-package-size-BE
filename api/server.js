@@ -38,13 +38,13 @@ server.get("/", (req, res) => {
       </p>
       <h3>POST /api/users/register – Creates a new record on the ‘users’ table.</h3>
       <p>
-        Expected request body properties: username (required, unique), password
-        (required), fullName (required), email, oAuth (boolean default false)
+        Expected request body properties: { username (required, unique), password
+        (required), fullName (required), email, oAuth(boolean) }
       </p>
       <h3>POST /api/users/login – Creates a JSON Web Token for user</h3>
       <p>
-        Accepted request body properties: username (required), password
-        (required)
+        Accepted request body properties: { username (required), password
+        (required) }
       </p>
       <h3>GET /api/users/checkauth – Checks if user’s token is valid</h3>
       <p>
@@ -52,6 +52,8 @@ server.get("/", (req, res) => {
         depending on if the token is still valid. Can be used in a
         componentDidMount() to set this.state.loggedIn upon browser refresh.
       </p>
+      <hr>
+      <h2>Products Routes<h2>
       <h3>
         GET /api/products – Returns a list of all products for current user
       </h3>
@@ -63,13 +65,21 @@ server.get("/", (req, res) => {
         POST /api/products/add – Creates a new record on the “products” table
       </h3>
       <p>
+      Expected request body properties: { name, productDescription, weight, length, width, height, value, manufacturerId, fragile(boolean), userId } <br><br>
        Adds the product for the
         current user. Returns a single JSON object with all of that product’s
         properties.
       </p>
-      <h3>
-      Shipments -Returns a list of all shipments for current user
-      </h3>
+      <h3> DELETE /api/products/delete/:id - Deletes a product based on the URL parameter</h3>
+      <p>Deletes a product with identifier matching the URL parameter. Returns an array of JSON
+      objects, which represent all products for current user after deletion changes.</p>
+      <h3> PUT /api/products/edit/:id - Edits a product based on the URL parameter</h3>
+      <p>Expects all the same request body properties as add product. None of these are required, only the ones you want to update. <br><br> Edits a product with identifier matching the URL parameter. Returns an array of JSON
+      objects, which represent all products for current user after update changes.</p>
+      <hr>
+      <h2>
+      Shipments Routes
+      </h2>
       <h5>Status codes for tracking responses
         0 : Unknown,
         1: Shipping,
@@ -77,14 +87,14 @@ server.get("/", (req, res) => {
         3: Out-For-Delivery,
         4: Delivered,
         5: Delayed</h5>
-      <h3>GET to /api/shipments/</h3>
+      <h3>GET to /api/shipments/ - Returns a list of all shipments for current user</h3>
       <p>
      Returns an array of JSON
       objects, which represent all shipments for current user.
       </p>
       <h3>POST to /api/shipments/add - Adds a new shipment by using a USPS Tracking Number</h3>
       <p>
-      Expected request body properties: trackingNumber, productId. Runs trackingNumber through USPS Api, 
+      Expected request body properties: { trackingNumber, productId }. <br><br>Runs trackingNumber through USPS Api, 
       creates trackingData object, and then uses the object for creation in database. Returns trackingData
       JSON object as response data.
       </p>
@@ -92,15 +102,15 @@ server.get("/", (req, res) => {
       <p>Deletes shipment with identifier matching the URL parameter. Returns an array of JSON
       objects, which represent all shipments for current user after deletion changes. <p>
       <h3>PUT to /api/shipments/edit/:id - Edits a shipment based on URL parameter</h3>
-      <p> Expected request body properties: dateShipped,
-      productId,
-      shippedTo,
-      trackingNumber,
-      carrierName,
-      shippingType,
-      status. None of these are required, only the ones you want to update.
+      <p>Expected request body properties: { dateShipped,
+        productId,
+        shippedTo,
+        trackingNumber,
+        carrierName,
+        shippingType,
+        status } None of these are required, only what you want to update.<br><br> None of these are required, only the ones you want to update.
       Edits shipment with identifier matching the URL parameter. Returns an array of JSON
-      objects, which represent all shipments for current user after edit changes. <p>
+      objects, which represent all shipments for current user after update changes. <p>
     </div>
   `);
 });
