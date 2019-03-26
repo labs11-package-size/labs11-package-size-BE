@@ -10,6 +10,7 @@ exports.up = function(knex, Promise) {
       column.string("fullName", 128).defaultTo("");
       column.string("email", 128).defaultTo("");
       column.boolean("oAuth").defaultTo(false);
+      column.uuid("uuid");
     })
     .createTable("products", column => {
       column.increments("identifier");
@@ -22,6 +23,7 @@ exports.up = function(knex, Promise) {
       column.decimal("value", 9, 2);
       column.string("manufacturerId", 512).defaultTo("");
       column.boolean("fragile").defaultTo(false);
+      column.uuid("uuid");
       column
         .integer("userId")
         .unsigned()
@@ -32,7 +34,7 @@ exports.up = function(knex, Promise) {
     })
     .createTable("product_assets", column => {
       column.increments("identifier");
-      column.string("label", 24).defaultTo("")
+      column.string("label", 24).defaultTo("");
       column.string("url", 512).defaultTo("");
       column
         .integer("productId")
@@ -41,6 +43,7 @@ exports.up = function(knex, Promise) {
         .inTable("products")
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
+      column.uuid("uuid");
     })
     .createTable("shipments", column => {
       column.increments("identifier");
@@ -56,8 +59,9 @@ exports.up = function(knex, Promise) {
       column.string("trackingNumber", 128).defaultTo("");
       column.string("carrierName", 128).defaultTo("");
       column.string("shippingType", 128).defaultTo("");
-      column.integer("status")
-    })
+      column.integer("status");
+      column.uuid("uuid");
+    });
 };
 
 exports.down = function(knex, Promise) {
@@ -65,5 +69,5 @@ exports.down = function(knex, Promise) {
     .dropTableIfExists("users")
     .dropTableIfExists("products")
     .dropTableIfExists("product_assets")
-    .dropTableIfExists("shipments")
+    .dropTableIfExists("shipments");
 };

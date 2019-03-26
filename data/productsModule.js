@@ -1,4 +1,5 @@
 const db = require("../data/dbConfig.js");
+const uuidTimestamp = require("uuid/v1")
 
 module.exports = {
   getProducts,
@@ -14,9 +15,10 @@ function getProducts(userId) {
 }
 
 async function addProduct(product, userId) {
-  const [id] = await db("products").insert({
+  await db("products").insert({
     ...product,
-    userId: userId
+    userId: userId,
+    uuid: uuidTimestamp()
   });
   return getProducts(userId)
   // return db("products").where({ userId });
@@ -44,7 +46,8 @@ async function addAsset(identifier, request) {
   const found = await db("products").where({ identifier })
   if (found) return db("productassets").insert({
     ...request,
-    productId: identifier
+    productId: identifier,
+    uuid: uuidTimestamp()
   })
 }
 

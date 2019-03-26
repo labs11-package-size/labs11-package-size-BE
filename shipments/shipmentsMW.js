@@ -5,15 +5,16 @@ module.exports = {
   uspsTracking
 };
 
+// trackingNumber's value needs to be string format
 function uspsTracking(req, res, next) {
   const trackingNumber = req.body.trackingNumber
   const productId = req.body.productId;
   if (trackingNumber || productId) {
-    usps.requestData({ trackingNumber: trackingNumber }, (err, data) => {
-        if (err)
+    usps.requestData({ trackingNumber }, (err, data) => {
+        if (err) {
         return res
           .status(401)
-          .json({ error: "The tracking number supplied is not valid" });
+          .json({ error: "The tracking number supplied is not valid" })}
       req.trackingObject = {
         dateShipped: data.activities[
           data.activities.length - 1
