@@ -1,8 +1,6 @@
 const router = require("express").Router();
-const jwt = require('jsonwebtoken');
 const db = require("../data/productsModule.js");
 const { authenticate } = require("../api/globalMW.js");
-const { jwtSecret } = require('../config/secrets.js')
 
 router.get("/", authenticate, (req, res) => {
     const userId = req.decoded.subject
@@ -87,4 +85,4 @@ router.put("/edit/:id", authenticate, (req, res) => {
     });
 });
 
-  module.exports = router
+module.exports = router

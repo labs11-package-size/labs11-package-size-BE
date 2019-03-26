@@ -1,8 +1,6 @@
 const router = require("express").Router();
-const jwt = require("jsonwebtoken");
 const db = require("../data/shipmentsModule.js");
 const { authenticate } = require("../api/globalMW.js");
-const { jwtSecret } = require("../config/secrets.js");
 const { uspsTracking } = require("./shipmentsMW.js");
 
 router.post("/add", authenticate, uspsTracking, (req, res) => {
