@@ -9,6 +9,18 @@ const ShipmentsRouter = require("../shipments/shipmentsRouter.js");
 
 const server = express();
 
+var firebase = require("firebase");
+require("firebase/auth");
+require("firebase/database");
+// Initialize Firebase for the application
+var config = {
+  apiKey: process.env.FBAPIKEY,
+  authDomain: process.env.FBAUTHDOMAIN,
+  databaseURL: process.env.FBDATABASEURL,
+  storageBucket: process.env.FBSTORAGEBUCKET,
+  messagingSenderId: process.env.FBMESSAGINGSENDERID
+};
+firebase.initializeApp(config);
 // const originUrls = process.env.PERMITTED_URLS.split(',');
 
 // const corsOptions = {

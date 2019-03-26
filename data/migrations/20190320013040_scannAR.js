@@ -48,6 +48,12 @@ exports.up = function(knex, Promise) {
     .createTable("shipments", column => {
       column.increments("identifier");
       column.date("dateShipped", 24);
+      column.string("shippedTo", 512).defaultTo("");
+      column.string("trackingNumber", 128).defaultTo("");
+      column.string("carrierName", 128).defaultTo("");
+      column.string("shippingType", 128).defaultTo("");
+      column.integer("status");
+      column.uuid("uuid");
       column
         .integer("productId")
         .unsigned()
@@ -55,12 +61,6 @@ exports.up = function(knex, Promise) {
         .inTable("products")
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
-      column.string("shippedTo", 512).defaultTo("");
-      column.string("trackingNumber", 128).defaultTo("");
-      column.string("carrierName", 128).defaultTo("");
-      column.string("shippingType", 128).defaultTo("");
-      column.integer("status");
-      column.uuid("uuid");
     });
 };
 

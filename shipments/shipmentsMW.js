@@ -1,5 +1,6 @@
 const { UspsClient } = require("shipit");
 const usps = new UspsClient({ userId: `${process.env.TRACKUSERNAME}` });
+const db = require("../data/dbConfig.js");
 
 module.exports = {
   uspsTracking
@@ -9,6 +10,11 @@ module.exports = {
 function uspsTracking(req, res, next) {
   const trackingNumber = req.body.trackingNumber
   const productId = req.body.productId;
+// let productnamehelper = db("products").where("identifier", productId).first().name
+// Promise.all(productnamehelper).then(results => {
+//   let result = {};
+//   return result;
+// })
   if (trackingNumber || productId) {
     usps.requestData({ trackingNumber }, (err, data) => {
         if (err) {
