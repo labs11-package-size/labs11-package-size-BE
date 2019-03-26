@@ -7,7 +7,7 @@ const { uspsTracking } = require("./shipmentsMW.js");
 
 router.post("/add", authenticate, uspsTracking, (req, res) => {
   const trackingdata = req.trackingObject;
-  console.log(trackingdata)
+  console.log(trackingdata);
   db.addShipment(trackingdata)
     .then(added => {
       res.status(201).json(added);
@@ -16,6 +16,10 @@ router.post("/add", authenticate, uspsTracking, (req, res) => {
       res.status(code).json({ message });
     });
 });
+
+// I didn't make id: a URL parameter on this
+// route, because it would deviate from what the url param
+// points to on DELETE and PUT (productId vs shipmentId)
 
 router.get("/", authenticate, (req, res) => {
   const userId = req.decoded.subject;
@@ -28,21 +32,19 @@ router.get("/", authenticate, (req, res) => {
     });
 });
 
-router.post("/add", authenticate, (req, res) => {
-  db.addShipment()
-    .then(added => {
-      res.status(201).json(added);
-    })
-    .catch(({ code, message }) => {
-      res.status(code).json({ message });
-    });
-});
-
 router.delete("/delete/:id", authenticate, (req, res) => {
+  const userId = req.decoded.subject;
   const { id } = req.params;
-  db.deleteShipment(id)
-    .then(shipments => {
-      res.status(200).json(shipments);
+  db.deleteShipment(id, userId)
+    .then(deleted => {
+      if (deleted) {
+        res.status(200).json(deleted);
+      } else {
+        res.status(404).json({
+          message:
+            "Unable to find any shipment entry matching the identifier given in the URL"
+        });
+      }
     })
     .catch(({ code, message }) => {
       res.status(code).json({ message });
@@ -50,16 +52,17 @@ router.delete("/delete/:id", authenticate, (req, res) => {
 });
 
 router.put("/edit/:id", authenticate, (req, res) => {
+  const userId = req.decoded.subject;
   const { id } = req.params;
-  {
+  const {
     dateShipped,
-      productId,
-      shippedTo,
-      trackingNumber,
-      carrierName,
-      shippingType,
-      status;
-  }
+    productId,
+    shippedTo,
+    trackingNumber,
+    carrierName,
+    shippingType,
+    status
+  } = req.body;
   const changes = {
     dateShipped,
     productId,
@@ -69,9 +72,16 @@ router.put("/edit/:id", authenticate, (req, res) => {
     shippingType,
     status
   };
-  db.editShipment(id, changes)
-    .then(shipments => {
-      res.status(200).json(shipments);
+  db.editShipment(id, userId, changes)
+    .then(updated => {
+      if (updated) {
+        res.status(200).json(updated);
+      } else {
+        res.status(404).json({
+          message:
+            "Unable to find any shipment entry matching the identifier given in the URL"
+        });
+      }
     })
     .catch(({ code, message }) => {
       res.status(code).json({ message });
