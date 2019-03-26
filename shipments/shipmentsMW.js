@@ -6,10 +6,10 @@ module.exports = {
 };
 
 function uspsTracking(req, res, next) {
-  const trackingNumber = req.body.trackingNumber;
+  const trackingNumber = req.body.trackingNumber
   const productId = req.body.productId;
   if (trackingNumber || productId) {
-    usps.requestData({ trackingNumber: `${trackingNumber}` }, (err, data) => {
+    usps.requestData({ trackingNumber: trackingNumber }, (err, data) => {
         if (err)
         return res
           .status(401)
@@ -24,7 +24,7 @@ function uspsTracking(req, res, next) {
         carrierName: "USPS",
         trackingNumber,
         productId
-      };
+      }
       next();
     });
   } else {

@@ -5,8 +5,8 @@ const { uspsTracking } = require("./shipmentsMW.js");
 
 router.post("/add", authenticate, uspsTracking, (req, res) => {
   const trackingdata = req.trackingObject;
-  console.log(trackingdata);
-  db.addShipment(trackingdata)
+  const userId = req.decoded.subject;
+  db.addShipment(trackingdata, userId)
     .then(added => {
       res.status(201).json(added);
     })
