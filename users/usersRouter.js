@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const { jwtSecret } = require("../config/secrets.js");
 const usersMW = require("./usersMW.js");
 const db = require("../data/usersModule.js");
+const { authenticate } = require("../api/globalMW.js");
 
 router.post("/register", (req, res) => {
   let user = req.body;
@@ -39,6 +40,41 @@ router.post("/login", (req, res) => {
       }
     });
 });
+
+router.get("/accountinfo", authenticate, (req, res) => {
+  const userId = req.decoded.subject
+  db.getUser(userId)
+  .then(account => {
+    res.status(200).json(account);
+  })
+  .catch(({ code, message }) => {
+    res.status(code).json({ message });
+  });
+})
+
+router.put("/accountinfo/edit", authenticate, (req, res) => {
+  const userId = req.decoded.subject;
+  const {
+username, password, fullName, email, oAuth
+  } = req.body;
+  const changes = {
+username, password, fullName, email, oAuth
+  };
+  db.editUser(userId, changes)
+    .then(updated => {
+      if (updated) {
+        res.status(200).json(updated);
+      } else {
+        res.status(404).json({
+          message:
+            "Unable to find any user account entry matching the userId provided"
+        });
+      }
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
+})
 
 router.get("/checkauth", (req, res) => {
   const token = req.headers.authorization;

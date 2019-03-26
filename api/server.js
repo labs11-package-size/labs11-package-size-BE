@@ -52,6 +52,11 @@ server.get("/", (req, res) => {
         depending on if the token is still valid. Can be used in a
         componentDidMount() to set this.state.loggedIn upon browser refresh.
       </p>
+      <h3>GET /api/user/accountinfo - Returns all account info for current user</h3>
+      <p>Expects JSON web token for Auth, and then returns JSON object representing user account data.</p>
+      <h3>POST /api/user/accountinfo/edit - Edits account info of currently logged in user</h3>
+      <p> Expect JSON web token for Auth. Expected request body properties: { username, password, fullName, email, oAuth } <br>
+      Updates currently logged in user's account info and returns a JSON representing account info after update</p>
       <hr>
       <h2>Products Routes<h2>
       <h3>
