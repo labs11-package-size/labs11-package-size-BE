@@ -1,4 +1,6 @@
 const db = require("../data/dbConfig.js");
+const uuidTimestamp = require("uuid/v1")
+const productsdb = require("../data/productsModule.js");
 
 module.exports = {
   getShipments,
@@ -9,30 +11,38 @@ module.exports = {
 
 function getShipments(userId) {
   return db("shipments")
-  .select("shipments.*")
-  .join("products", "shipments.productId", "=", "products.identifier")
-  .where({ userId })
+    .select("shipments.*")
+    .join("products", "shipments.productId", "=", "products.identifier")
+    .where({ userId });
 }
 
-async function addShipment(shipment) {
-  const [id] = await db("shipments").insert(shipment);
-  return findById("shipments", id);
+async function addShipment(shipment, userId) {
+  await db("shipments").insert({
+    ...shipment,
+    uuid: uuidTimestamp()
+  });
+  return getShipments(userId);
 }
 
 async function deleteShipment(identifier, userId) {
-    const deleted = await db("shipments").where({ identifier }).del()
-    if (deleted) return getShipments(userId)
-    return null;
+  const deleted = await db("shipments")
+    .where({ identifier })
+    .del();
+  if (deleted) return getShipments(userId);
+  return null;
 }
 
-async function editShipment(identifier, userId, changes) {
-    const edited = await db('shipments').where({ identifier }).update(changes)
-    if (edited) return getShipments(userId)
-    return null;
+async function editShipment(identifier, userId, changes, productId) {
+  const productName = await productsdb.getProductName(productId)
+  const edited = await db("shipments")
+    .where({ identifier })
+    .update({...changes, productName: productName.name});
+  if (edited) return getShipments(userId);
+  return null;
 }
 
 function findById(table, identifier) {
-    return db(`${table}`)
-      .where({ identifier })
-      .first();
-  }
+  return db(`${table}`)
+    .where({ identifier })
+    .first();
+}

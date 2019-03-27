@@ -1,14 +1,12 @@
 const router = require("express").Router();
-const jwt = require("jsonwebtoken");
 const db = require("../data/shipmentsModule.js");
 const { authenticate } = require("../api/globalMW.js");
-const { jwtSecret } = require("../config/secrets.js");
 const { uspsTracking } = require("./shipmentsMW.js");
 
 router.post("/add", authenticate, uspsTracking, (req, res) => {
   const trackingdata = req.trackingObject;
-  console.log(trackingdata);
-  db.addShipment(trackingdata)
+  const userId = req.decoded.subject;
+  db.addShipment(trackingdata, userId)
     .then(added => {
       res.status(201).json(added);
     })
@@ -72,7 +70,7 @@ router.put("/edit/:id", authenticate, (req, res) => {
     shippingType,
     status
   };
-  db.editShipment(id, userId, changes)
+  db.editShipment(id, userId, changes, productId)
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);

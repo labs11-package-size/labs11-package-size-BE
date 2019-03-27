@@ -9,6 +9,18 @@ const ShipmentsRouter = require("../shipments/shipmentsRouter.js");
 
 const server = express();
 
+var firebase = require("firebase");
+require("firebase/auth");
+require("firebase/database");
+// Initialize Firebase for the application
+var config = {
+  apiKey: process.env.FBAPIKEY,
+  authDomain: process.env.FBAUTHDOMAIN,
+  databaseURL: process.env.FBDATABASEURL,
+  storageBucket: process.env.FBSTORAGEBUCKET,
+  messagingSenderId: process.env.FBMESSAGINGSENDERID
+};
+firebase.initializeApp(config);
 // const originUrls = process.env.PERMITTED_URLS.split(',');
 
 // const corsOptions = {
@@ -52,6 +64,11 @@ server.get("/", (req, res) => {
         depending on if the token is still valid. Can be used in a
         componentDidMount() to set this.state.loggedIn upon browser refresh.
       </p>
+      <h3>GET /api/users/accountinfo - Returns all account info for current user</h3>
+      <p>Expects JSON web token for Auth, and then returns JSON object representing user account data.</p>
+      <h3>PUT /api/users/accountinfo/edit - Edits account info of currently logged in user</h3>
+      <p> Expect JSON web token for Auth. Expected request body properties: { username, password, fullName, email, oAuth } <br>
+      Updates currently logged in user's account info and returns a JSON representing account info after update</p>
       <hr>
       <h2>Products Routes<h2>
       <h3>
@@ -67,8 +84,8 @@ server.get("/", (req, res) => {
       <p>
       Expected request body properties: { name, productDescription, weight, length, width, height, value, manufacturerId, fragile(boolean), userId } <br><br>
        Adds the product for the
-        current user. Returns a single JSON object with all of that product’s
-        properties.
+        current user. Returns an array of JSON
+        objects, representing all products for current user.
       </p>
       <h3> DELETE /api/products/delete/:id - Deletes a product based on the URL parameter</h3>
       <p>Deletes a product with identifier matching the URL parameter. Returns an array of JSON
@@ -76,6 +93,8 @@ server.get("/", (req, res) => {
       <h3> PUT /api/products/edit/:id - Edits a product based on the URL parameter</h3>
       <p>Expects all the same request body properties as add product. None of these are required, only the ones you want to update. <br><br> Edits a product with identifier matching the URL parameter. Returns an array of JSON
       objects, which represent all products for current user after update changes.</p>
+      <h3> GET /api/products/assets/:id - Returns a list of all assets for product provided in URL</h3>
+      <h3> POST /api/products/assets/add/:id - Adds a product asset.</h3>
       <hr>
       <h2>
       Shipments Routes
@@ -95,8 +114,8 @@ server.get("/", (req, res) => {
       <h3>POST to /api/shipments/add - Adds a new shipment by using a USPS Tracking Number</h3>
       <p>
       Expected request body properties: { trackingNumber, productId }. <br><br>Runs trackingNumber through USPS Api, 
-      creates trackingData object, and then uses the object for creation in database. Returns trackingData
-      JSON object as response data.
+      creates trackingData object, and then uses the object for creation in database. Returns an array of JSON objects,
+      which represents all of the shipments after the addition. Adds a productName property based upon given productId.
       </p>
       <h3>DELETE to /api/shipments/delete/:id - Deletes a shipment based on URL parameter</h3>
       <p>Deletes shipment with identifier matching the URL parameter. Returns an array of JSON
@@ -108,9 +127,9 @@ server.get("/", (req, res) => {
         trackingNumber,
         carrierName,
         shippingType,
-        status } None of these are required, only what you want to update.<br><br> None of these are required, only the ones you want to update.
-      Edits shipment with identifier matching the URL parameter. Returns an array of JSON
-      objects, which represent all shipments for current user after update changes. <p>
+        status } None of these are required, only what you want to update.<br><br>
+      Upon change of productId, the productName will be changed by server in respect. Returns an array of JSON
+      objects, which represents all shipments after the update has been made. <p>
     </div>
   `);
 });
