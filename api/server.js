@@ -9,18 +9,7 @@ const ShipmentsRouter = require("../shipments/shipmentsRouter.js");
 
 const server = express();
 
-var firebase = require("firebase");
-require("firebase/auth");
-require("firebase/database");
-// Initialize Firebase for the application
-var config = {
-  apiKey: process.env.FBAPIKEY,
-  authDomain: process.env.FBAUTHDOMAIN,
-  databaseURL: process.env.FBDATABASEURL,
-  storageBucket: process.env.FBSTORAGEBUCKET,
-  messagingSenderId: process.env.FBMESSAGINGSENDERID
-};
-firebase.initializeApp(config);
+
 // const originUrls = process.env.PERMITTED_URLS.split(',');
 
 // const corsOptions = {
@@ -83,7 +72,8 @@ server.get("/", (req, res) => {
       </h3>
       <p>
       Expected request body properties: { name, productDescription, weight, length, width, height, value, manufacturerId, fragile(boolean), userId } <br><br>
-       Adds the product for the
+      *Tracking Number Must be Sent as a String*
+      Adds the product for the
         current user. Returns an array of JSON
         objects, representing all products for current user.
       </p>

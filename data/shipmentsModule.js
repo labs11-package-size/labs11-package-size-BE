@@ -1,6 +1,7 @@
 const db = require("../data/dbConfig.js");
 const uuidTimestamp = require("uuid/v1")
 const productsdb = require("../data/productsModule.js");
+const moment = require("moment")
 
 module.exports = {
   getShipments,
@@ -33,10 +34,11 @@ async function deleteShipment(identifier, userId) {
 }
 
 async function editShipment(identifier, userId, changes, productId) {
+  const currentDate = moment().format("YYYY-MM-DD hh:mm:ss")
   const productName = await productsdb.getProductName(productId)
   const edited = await db("shipments")
     .where({ identifier })
-    .update({...changes, productName: productName.name});
+    .update({...changes, productName: productName.name, lastUpdated: currentDate});
   if (edited) return getShipments(userId);
   return null;
 }

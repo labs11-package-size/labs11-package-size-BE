@@ -14,6 +14,7 @@ exports.up = function(knex, Promise) {
     })
     .createTable("products", column => {
       column.increments("identifier");
+      column.date("lastUpdated", 24)
       column.string("name", 128).notNullable();
       column.string("productDescription", 512).defaultTo("");
       column.decimal("weight", 9, 2);
@@ -47,6 +48,7 @@ exports.up = function(knex, Promise) {
     })
     .createTable("shipments", column => {
       column.increments("identifier");
+      column.date("lastUpdated", 24)
       column.date("dateShipped", 24);
       column.string("productName", 128).defaultTo("");
       column.string("shippedTo", 512).defaultTo("");
