@@ -2,6 +2,7 @@ const router = require("express").Router();
 const db = require("../data/productsModule.js");
 const { authenticate } = require("../api/globalMW.js");
 
+
 router.get("/", authenticate, (req, res) => {
     const userId = req.decoded.subject
   db.getProducts(userId)

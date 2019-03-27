@@ -1,5 +1,6 @@
 const db = require("../data/dbConfig.js");
 const uuidTimestamp = require("uuid/v1")
+const moment = require("moment");
 
 module.exports = {
   getProducts,
@@ -16,10 +17,12 @@ function getProducts(userId) {
 }
 
 async function addProduct(product, userId) {
+  const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss")
   await db("products").insert({
     ...product,
     userId: userId,
-    uuid: uuidTimestamp()
+    uuid: uuidTimestamp(),
+    lastUpdated: currentDate
   });
   return getProducts(userId)
   // return db("products").where({ userId });
@@ -36,7 +39,8 @@ async function deleteProduct(identifier, userId){
 }
 
 async function editProduct(identifier, userId, changes){
-  const edited = await db('products').where({ identifier }).update({...changes, userId})
+  const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss")
+  const edited = await db('products').where({ identifier }).update({...changes, userId, lastUpdated: currentDate})
   if (edited) return getProducts(userId)
   return null;
 }
@@ -54,6 +58,7 @@ async function addAsset(identifier, request) {
     productId: identifier,
     uuid: uuidTimestamp()
   })
+  return null;
 }
 
 function findById(table, identifier) {

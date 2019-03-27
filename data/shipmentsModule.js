@@ -34,7 +34,7 @@ async function deleteShipment(identifier, userId) {
 }
 
 async function editShipment(identifier, userId, changes, productId) {
-  const currentDate = moment().format("YYYY-MM-DD hh:mm:ss")
+  const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss")
   const productName = await productsdb.getProductName(productId)
   const edited = await db("shipments")
     .where({ identifier })
