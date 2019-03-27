@@ -47,10 +47,10 @@ router.post("/add", authenticate, (req, res) => {
     });
 });
 
-router.delete("/delete/:id", authenticate, (req, res) => {
+router.delete("/delete/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { id } = req.params;
-  db.deleteProduct(id, userId)
+  const { uuid } = req.params;
+  db.deleteProduct(uuid, userId)
     .then(deleted => {
       if (deleted) {
         res.status(200).json(deleted);
@@ -66,9 +66,9 @@ router.delete("/delete/:id", authenticate, (req, res) => {
     });
 });
 
-router.put("/edit/:id", authenticate, (req, res) => {
+router.put("/edit/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { id } = req.params;
+  const { uuid } = req.params;
   const {
     name,
     productDescription,
@@ -91,7 +91,7 @@ router.put("/edit/:id", authenticate, (req, res) => {
     manufacturerId,
     fragile
   };
-  db.editProduct(id, userId, changes)
+  db.editProduct(uuid, userId, changes)
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);
@@ -107,9 +107,9 @@ router.put("/edit/:id", authenticate, (req, res) => {
     });
 });
 
-router.get("/assets/:id", authenticate, (req, res) => {
-  const { id } = req.params;
-  db.getAssets(id)
+router.get("/assets/:uuid", authenticate, (req, res) => {
+  const { uuid } = req.params;
+  db.getAssets(uuid)
     .then(found => {
       if (found) {
       res.status(200).json(found);
@@ -125,8 +125,8 @@ router.get("/assets/:id", authenticate, (req, res) => {
       });
 })
 
-router.post("/assets/add/:id", authenticate, (req, res) => {
-const { id } = req.params;
+router.post("/assets/add/:uuid", authenticate, (req, res) => {
+const { uuid } = req.params;
 const {
   label,
   url
@@ -135,7 +135,7 @@ const addition = {
   label,
   url
 };
-db.addAsset(id, addition)
+db.addAsset(uuid, addition)
 .then(added => {
   if (added) {
   res.status(200).json(added);
