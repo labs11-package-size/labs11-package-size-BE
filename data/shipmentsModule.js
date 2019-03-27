@@ -1,5 +1,6 @@
 const db = require("../data/dbConfig.js");
 const uuidTimestamp = require("uuid/v1")
+const productsdb = require("../data/productsModule.js");
 
 module.exports = {
   getShipments,
@@ -31,10 +32,11 @@ async function deleteShipment(identifier, userId) {
   return null;
 }
 
-async function editShipment(identifier, userId, changes) {
+async function editShipment(identifier, userId, changes, productId) {
+  const productName = await productsdb.getProductName(productId)
   const edited = await db("shipments")
     .where({ identifier })
-    .update(changes);
+    .update({...changes, productName: productName.name});
   if (edited) return getShipments(userId);
   return null;
 }

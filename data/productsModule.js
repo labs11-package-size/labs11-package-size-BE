@@ -7,7 +7,8 @@ module.exports = {
   deleteProduct,
   editProduct,
   getAssets,
-  addAsset
+  addAsset,
+  getProductName
 };
 
 function getProducts(userId) {
@@ -22,6 +23,10 @@ async function addProduct(product, userId) {
   });
   return getProducts(userId)
   // return db("products").where({ userId });
+}
+
+function getProductName(identifier) {
+  return db("products").where({ identifier }).first()
 }
 
 async function deleteProduct(identifier, userId){

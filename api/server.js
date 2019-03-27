@@ -115,7 +115,7 @@ server.get("/", (req, res) => {
       <p>
       Expected request body properties: { trackingNumber, productId }. <br><br>Runs trackingNumber through USPS Api, 
       creates trackingData object, and then uses the object for creation in database. Returns an array of JSON objects,
-      which represents all of the shipments after the addition.
+      which represents all of the shipments after the addition. Adds a productName property based upon given productId.
       </p>
       <h3>DELETE to /api/shipments/delete/:id - Deletes a shipment based on URL parameter</h3>
       <p>Deletes shipment with identifier matching the URL parameter. Returns an array of JSON
@@ -128,7 +128,7 @@ server.get("/", (req, res) => {
         carrierName,
         shippingType,
         status } None of these are required, only what you want to update.<br><br>
-      Edits shipment with identifier matching the URL parameter. Returns an array of JSON
+      Upon change of productId, the productName will be changed by server in respect. Returns an array of JSON
       objects, which represents all shipments after the update has been made. <p>
     </div>
   `);

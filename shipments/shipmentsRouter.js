@@ -70,7 +70,7 @@ router.put("/edit/:id", authenticate, (req, res) => {
     shippingType,
     status
   };
-  db.editShipment(id, userId, changes)
+  db.editShipment(id, userId, changes, productId)
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);

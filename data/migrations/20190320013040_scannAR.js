@@ -48,6 +48,7 @@ exports.up = function(knex, Promise) {
     .createTable("shipments", column => {
       column.increments("identifier");
       column.date("dateShipped", 24);
+      column.string("productName", 128).defaultTo("");
       column.string("shippedTo", 512).defaultTo("");
       column.string("trackingNumber", 128).defaultTo("");
       column.string("carrierName", 128).defaultTo("");

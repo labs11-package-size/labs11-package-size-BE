@@ -1,6 +1,7 @@
 const { UspsClient } = require("shipit");
 const usps = new UspsClient({ userId: `${process.env.TRACKUSERNAME}` });
-const db = require("../data/dbConfig.js");
+const db = require("../data/productsModule.js");
+const moment = require("moment")
 
 module.exports = {
   uspsTracking
@@ -8,36 +9,44 @@ module.exports = {
 
 // trackingNumber's value needs to be string format
 function uspsTracking(req, res, next) {
-  const trackingNumber = req.body.trackingNumber
+  const trackingNumber = req.body.trackingNumber;
   const productId = req.body.productId;
-// let productnamehelper = db("products").where("identifier", productId).first().name
-// Promise.all(productnamehelper).then(results => {
-//   let result = {};
-//   return result;
-// })
-  if (trackingNumber || productId) {
-    usps.requestData({ trackingNumber }, (err, data) => {
-        if (err) {
-        return res
-          .status(401)
-          .json({ error: "The tracking number supplied is not valid" })}
-      req.trackingObject = {
-        dateShipped: data.activities[
-          data.activities.length - 1
-        ].timestamp,
-        shippedTo: data.destination,
-        shippingType: data.service,
-        status: data.status,
-        carrierName: "USPS",
-        trackingNumber,
-        productId
+  db.getProductName(productId)
+    .then(found => {
+      if (found) {
+        if (trackingNumber || productId) {
+          usps.requestData({ trackingNumber }, (err, data) => {
+            if (err) {
+              return res
+                .status(401)
+                .json({ error: "The tracking number supplied is not valid" });
+            }
+            let parsedDate = moment(data.activities[data.activities.length - 1].timestamp).format("YYYY-MM-DD")
+            req.trackingObject = {
+              dateShipped: parsedDate,
+              shippedTo: data.destination,
+              shippingType: data.service,
+              status: data.status,
+              carrierName: "USPS",
+              productName: found.name,
+              trackingNumber,
+              productId
+            };
+            next();
+          });
+        } else {
+          return res.status(400).json({
+            error:
+              "Invalid Request, please include both a trackingNumber and productId in the request body"
+          });
+        }
+      } else {
+        return res.status(404).json({
+          error: "No matching product found for given productId"
+        });
       }
-      next();
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
     });
-  } else {
-    return res.status(400).json({
-      error:
-        "Invalid Request, please include both a trackingNumber and productId in the request body"
-    });
-  }
 }
