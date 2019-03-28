@@ -27,6 +27,8 @@ router.post("/register", (req, res) => {
 });
 
 router.post("/login", (req, res) => {
+  console.log(req.body)
+  console.log(typeof req.body.uid)
   const { displayName, email, photoURL, uid } = req.body;
   const firebaseUser = { displayName, email, photoURL, uid };
   if (!uid || typeof uid !== "string") {
