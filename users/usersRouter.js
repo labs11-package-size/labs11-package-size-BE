@@ -27,8 +27,6 @@ router.post("/register", (req, res) => {
 });
 
 router.post("/login", (req, res) => {
-  console.log(req.body)
-  console.log(typeof req.body.uid)
   const { displayName, email, photoURL, uid } = req.body;
   const firebaseUser = { displayName, email, photoURL, uid };
   if (!uid || typeof uid !== "string") {
@@ -37,7 +35,7 @@ router.post("/login", (req, res) => {
   db.findUid(uid)
     .then(user => {
       if (user.length) {
-        const token = usersMW.makejwt(user);
+        const token = usersMW.makejwt(user[0]);
         res.status(200).json({ token });
       } else {
         db.addUser(firebaseUser)
