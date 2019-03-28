@@ -6,9 +6,7 @@ const fakerUsers = () => {
   for (i = 101; i <= 200; i++) {
     usersArray.push({
       identifier: i,
-      username: faker.internet.userName(),
-      password: bcrypt.hashSync(faker.internet.password(), 10),
-      fullName: faker.name.findName(),
+      displayName: faker.name.findName(),
       email: faker.internet.email(),
       uuid: faker.random.uuid()
     });

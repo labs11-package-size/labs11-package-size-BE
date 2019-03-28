@@ -77,14 +77,14 @@ server.get("/", (req, res) => {
         current user. Returns an array of JSON
         objects, representing all products for current user.
       </p>
-      <h3> DELETE /api/products/delete/:id - Deletes a product based on the URL parameter</h3>
-      <p>Deletes a product with identifier matching the URL parameter. Returns an array of JSON
+      <h3> DELETE /api/products/delete/:uuid - Deletes a product based on the URL parameter</h3>
+      <p>Deletes a product with UUID matching the URL parameter. Returns an array of JSON
       objects, which represent all products for current user after deletion changes.</p>
-      <h3> PUT /api/products/edit/:id - Edits a product based on the URL parameter</h3>
+      <h3> PUT /api/products/edit/:uuid - Edits a product based on the URL parameter</h3>
       <p>Expects all the same request body properties as add product. None of these are required, only the ones you want to update. <br><br> Edits a product with identifier matching the URL parameter. Returns an array of JSON
       objects, which represent all products for current user after update changes.</p>
-      <h3> GET /api/products/assets/:id - Returns a list of all assets for product provided in URL</h3>
-      <h3> POST /api/products/assets/add/:id - Adds a product asset.</h3>
+      <h3> GET /api/products/assets/:uuid - Returns an array of JSON objects for all assets for product provided in URL. If there is only one found asset, it will still be returned as an array with a length of 1, requiring a map.</h3>
+      <h3> POST /api/products/assets/add/:uuid - Adds a product asset. Expected request body properties: { label, url, productId } (uuid is automatically generated)</h3>
       <hr>
       <h2>
       Shipments Routes
@@ -107,10 +107,10 @@ server.get("/", (req, res) => {
       creates trackingData object, and then uses the object for creation in database. Returns an array of JSON objects,
       which represents all of the shipments after the addition. Adds a productName property based upon given productId.
       </p>
-      <h3>DELETE to /api/shipments/delete/:id - Deletes a shipment based on URL parameter</h3>
-      <p>Deletes shipment with identifier matching the URL parameter. Returns an array of JSON
+      <h3>DELETE to /api/shipments/delete/:uuid - Deletes a shipment based on URL parameter</h3>
+      <p>Deletes shipment with UUID matching the URL parameter. Returns an array of JSON
       objects, which represent all shipments for current user after deletion changes. <p>
-      <h3>PUT to /api/shipments/edit/:id - Edits a shipment based on URL parameter</h3>
+      <h3>PUT to /api/shipments/edit/:uuid - Edits a shipment based on URL parameter</h3>
       <p>Expected request body properties: { dateShipped,
         productId,
         shippedTo,

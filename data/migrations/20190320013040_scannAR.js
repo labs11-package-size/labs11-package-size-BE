@@ -2,19 +2,15 @@ exports.up = function(knex, Promise) {
   return knex.schema
     .createTable("users", column => {
       column.increments("identifier");
-      column
-        .string("username", 32)
-        .notNullable()
-        .unique();
-      column.string("password", 32).notNullable();
-      column.string("fullName", 128).defaultTo("");
+      column.string("displayName", 128).defaultTo("");
+      column.string("photoURL", 512).defaultTo("");
       column.string("email", 128).defaultTo("");
-      column.uuid("uuid");
+      column.uuid("uuid").defaultTo("");
       column.string("uid", 32).defaultTo("")
     })
     .createTable("products", column => {
-      column.increments("identifier")
-      column.date("lastUpdated", 24)
+      column.increments("identifier");
+      column.date("lastUpdated", 24);
       column.string("name", 128).notNullable();
       column.string("productDescription", 512).defaultTo("");
       column.decimal("weight", 9, 2);
@@ -39,30 +35,31 @@ exports.up = function(knex, Promise) {
       column.string("url", 512).defaultTo("");
       column.uuid("uuid");
       column
-      .integer("productId")
-      .unsigned()
-      .references("id")
-      .inTable("products")
-      .onDelete("CASCADE")
-      .onUpdate("CASCADE");
+        .integer("productId")
+        .unsigned()
+        .references("id")
+        .inTable("products")
+        .onDelete("CASCADE")
+        .onUpdate("CASCADE");
     })
     .createTable("boxes", column => {
       column.decimal("length", 3, 1);
       column.decimal("width", 3, 1);
       column.decimal("height", 3, 1);
-      column.uuid("uuid")
+      column.uuid("uuid");
       column
-      .integer("productId")
-      .unsigned()
-      .references("id")
-      .inTable("products")
-      .onDelete("CASCADE")
-      .onUpdate("CASCADE");
+        .integer("productId")
+        .unsigned()
+        .references("id")
+        .inTable("products")
+        .onDelete("CASCADE")
+        .onUpdate("CASCADE");
     })
     .createTable("shipments", column => {
       column.increments("identifier");
-      column.date("lastUpdated", 24).defaultTo("")
-      column.date("dateShipped", 24).defaultTo("")
+      column.date("lastUpdated", 24).defaultTo("");
+      column.date("dateShipped", 24).defaultTo("");
+      column.date("dateArrived", 24).defaultTo("");
       column.string("productName", 128).defaultTo("");
       column.string("shippedTo", 512).defaultTo("");
       column.string("trackingNumber", 128).defaultTo("");

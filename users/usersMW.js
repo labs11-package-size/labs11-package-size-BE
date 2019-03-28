@@ -10,7 +10,7 @@ module.exports = {
 function makejwt(user) {
   const payload = {
     subject: user.identifier,
-    username: user.username
+    email: user.email
   };
   const options = {
     expiresIn: "8h"

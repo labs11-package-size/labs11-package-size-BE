@@ -8,7 +8,7 @@ const fakerShipments = () => {
         identifier: (p + u * 23),
         dateShipped: faker.date.past(),
         shippedTo: `${faker.address.city()}, ${faker.address.stateAbbr()} ${faker.address.zipCode()}`,
-        status: (Math.floor(Math.random() * (4)) + 1),
+        status: Math.floor(Math.random() * (5)) + 1,
         uuid: faker.random.uuid(),
         productId: (p + u * 23),
         productName: faker.commerce.productName()
