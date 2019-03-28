@@ -53,6 +53,7 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
   const { uuid } = req.params;
   const {
+    dateArrived,
     dateShipped,
     productId,
     shippedTo,
@@ -62,6 +63,7 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     status
   } = req.body;
   const changes = {
+    dateArrived,
     dateShipped,
     productId,
     shippedTo,

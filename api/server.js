@@ -37,15 +37,12 @@ server.get("/", (req, res) => {
     .utcOffset(-4)
     .format("h:mm:ss a")} EST.
       </p>
-      <h3>POST /api/users/register – Creates a new record on the ‘users’ table.</h3>
+      <h3>POST /api/users/login – Creates a JSON Web Token for user, and creates a new account if their firebase uid is new to scannAR.</h3>
+      <p> A request to this login route is expected to be made immediately after logging in through firebase.
+      Firebase login provides user data upon a successful login. Use this data in JSON form for making this POST request.
       <p>
-        Expected request body properties: { username (required, unique), password
-        (required), fullName (required), email, oAuth(boolean) }
-      </p>
-      <h3>POST /api/users/login – Creates a JSON Web Token for user</h3>
-      <p>
-        Accepted request body properties: { username (required), password
-        (required) }
+        Accepted request body properties: { uid (required), displayName, email, photoURL  }<br><br>
+        Returns a JSON web token.
       </p>
       <h3>GET /api/users/checkauth – Checks if user’s token is valid</h3>
       <p>
@@ -54,9 +51,9 @@ server.get("/", (req, res) => {
         componentDidMount() to set this.state.loggedIn upon browser refresh.
       </p>
       <h3>GET /api/users/accountinfo - Returns all account info for current user</h3>
-      <p>Expects JSON web token for Auth, and then returns JSON object representing user account data.</p>
+      <p>Expects JSON web token, and then returns JSON object representing user account data.</p>
       <h3>PUT /api/users/accountinfo/edit - Edits account info of currently logged in user</h3>
-      <p> Expect JSON web token for Auth. Expected request body properties: { username, password, fullName, email, oAuth } <br>
+      <p> Expect JSON web token. Expected request body properties: { displayName, email, photoURL } <br>
       Updates currently logged in user's account info and returns a JSON representing account info after update</p>
       <hr>
       <h2>Products Routes<h2>

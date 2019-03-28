@@ -20,9 +20,6 @@ router.post("/add", authenticate, (req, res) => {
     name,
     productDescription,
     weight,
-    length,
-    width,
-    height,
     value,
     manufacturerId,
     fragile
@@ -31,9 +28,6 @@ router.post("/add", authenticate, (req, res) => {
     name,
     productDescription,
     weight,
-    length,
-    width,
-    height,
     value,
     manufacturerId,
     fragile
@@ -57,7 +51,7 @@ router.delete("/delete/:uuid", authenticate, (req, res) => {
       } else {
         res.status(404).json({
           message:
-            "Unable to find any Product entry matching the identifier given in the URL"
+            "Unable to find any Product entry matching the UUID given in the URL"
         });
       }
     })
@@ -73,9 +67,6 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     name,
     productDescription,
     weight,
-    length,
-    width,
-    height,
     value,
     manufacturerId,
     fragile
@@ -84,9 +75,6 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     name,
     productDescription,
     weight,
-    length,
-    width,
-    height,
     value,
     manufacturerId,
     fragile
@@ -98,7 +86,7 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
       } else {
         res.status(404).json({
           message:
-            "Unable to find any Product entry matching the identifier given in the URL"
+            "Unable to find any Product entry matching the UUID given in the URL"
         });
       }
     })
@@ -116,7 +104,7 @@ router.get("/assets/:uuid", authenticate, (req, res) => {
     } else {
       res.status(404).json({
         message:
-          "Unable to find any Product entry matching the identifier given in the URL"
+          "Unable to find any Product entry matching the UUID given in the URL"
       });
     }
   })
@@ -142,7 +130,7 @@ db.addAsset(uuid, addition)
 } else {
   res.status(404).json({
     message:
-      "Unable to find any Product entry matching the identifier given in the URL"
+      "Unable to find any Product entry matching the UUID given in the URL"
   });
 }
 })

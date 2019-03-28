@@ -29,6 +29,9 @@ router.post("/register", (req, res) => {
 router.post("/login", (req, res) => {
   const { displayName, email, photoURL, uid } = req.body;
   const firebaseUser = { displayName, email, photoURL, uid };
+  if (!uid || typeof uid !== "string") {
+    return res.status(401).json({ error: "Invalid server-side login. A uid must be provided as a string in req.body.uid"})
+  }
   db.findUid(uid)
     .then(user => {
       if (user.length) {
@@ -63,13 +66,9 @@ router.get("/accountinfo", authenticate, (req, res) => {
 
 router.put("/accountinfo/edit", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { username, password, fullName, email, oAuth } = req.body;
+  const { displayName, email, photoURL } = req.body;
   const changes = {
-    username,
-    password,
-    fullName,
-    email,
-    oAuth
+    displayName, email, photoURL
   };
   db.editUser(userId, changes)
     .then(updated => {
