@@ -33,7 +33,7 @@ router.get("/", authenticate, (req, res) => {
 router.delete("/delete/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
   const { uuid } = req.params;
-  db.deleteShipment(uuid, userId)
+  db.deleteShipment(uuid.toLowerCase(), userId)
     .then(deleted => {
       if (deleted) {
         res.status(200).json(deleted);
@@ -72,7 +72,7 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     shippingType,
     status
   };
-  db.editShipment(uuid, userId, changes, productId)
+  db.editShipment(uuid.toLowerCase(), userId, changes, productId)
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);

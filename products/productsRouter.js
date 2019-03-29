@@ -79,7 +79,7 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     manufacturerId,
     fragile
   };
-  db.editProduct(uuid, userId, changes)
+  db.editProduct(uuid.toLowerCase(), userId, changes)
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);
@@ -97,7 +97,7 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
 
 router.get("/assets/:uuid", authenticate, (req, res) => {
   const { uuid } = req.params;
-  db.getAssets(uuid)
+  db.getAssets(uuid.toLowerCase())
     .then(found => {
       if (found) {
       res.status(200).json(found);
@@ -123,7 +123,7 @@ const addition = {
   label,
   url
 };
-db.addAsset(uuid, addition)
+db.addAsset(uuid.toLowerCase(), addition)
 .then(added => {
   if (added) {
   res.status(200).json(added);
