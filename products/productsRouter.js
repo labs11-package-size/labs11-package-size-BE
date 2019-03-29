@@ -2,6 +2,7 @@ const router = require("express").Router();
 const db = require("../data/productsModule.js");
 const { authenticate } = require("../api/globalMW.js");
 
+
 router.get("/", authenticate, (req, res) => {
     const userId = req.decoded.subject
   db.getProducts(userId)
@@ -19,9 +20,6 @@ router.post("/add", authenticate, (req, res) => {
     name,
     productDescription,
     weight,
-    length,
-    width,
-    height,
     value,
     manufacturerId,
     fragile
@@ -30,9 +28,6 @@ router.post("/add", authenticate, (req, res) => {
     name,
     productDescription,
     weight,
-    length,
-    width,
-    height,
     value,
     manufacturerId,
     fragile
@@ -46,17 +41,17 @@ router.post("/add", authenticate, (req, res) => {
     });
 });
 
-router.delete("/delete/:id", authenticate, (req, res) => {
+router.delete("/delete/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { id } = req.params;
-  db.deleteProduct(id, userId)
+  const { uuid } = req.params;
+  db.deleteProduct(uuid, userId)
     .then(deleted => {
       if (deleted) {
         res.status(200).json(deleted);
       } else {
         res.status(404).json({
           message:
-            "Unable to find any Product entry matching the identifier given in the URL"
+            "Unable to find any Product entry matching the UUID given in the URL"
         });
       }
     })
@@ -65,16 +60,13 @@ router.delete("/delete/:id", authenticate, (req, res) => {
     });
 });
 
-router.put("/edit/:id", authenticate, (req, res) => {
+router.put("/edit/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { id } = req.params;
+  const { uuid } = req.params;
   const {
     name,
     productDescription,
     weight,
-    length,
-    width,
-    height,
     value,
     manufacturerId,
     fragile
@@ -83,21 +75,18 @@ router.put("/edit/:id", authenticate, (req, res) => {
     name,
     productDescription,
     weight,
-    length,
-    width,
-    height,
     value,
     manufacturerId,
     fragile
   };
-  db.editProduct(id, userId, changes)
+  db.editProduct(uuid, userId, changes)
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);
       } else {
         res.status(404).json({
           message:
-            "Unable to find any Product entry matching the identifier given in the URL"
+            "Unable to find any Product entry matching the UUID given in the URL"
         });
       }
     })
@@ -106,16 +95,16 @@ router.put("/edit/:id", authenticate, (req, res) => {
     });
 });
 
-router.get("/assets/:id", authenticate, (req, res) => {
-  const { id } = req.params;
-  db.getAssets(id)
+router.get("/assets/:uuid", authenticate, (req, res) => {
+  const { uuid } = req.params;
+  db.getAssets(uuid)
     .then(found => {
       if (found) {
       res.status(200).json(found);
     } else {
       res.status(404).json({
         message:
-          "Unable to find any Product entry matching the identifier given in the URL"
+          "Unable to find any Product entry matching the UUID given in the URL"
       });
     }
   })
@@ -124,8 +113,8 @@ router.get("/assets/:id", authenticate, (req, res) => {
       });
 })
 
-router.post("/assets/add/:id", authenticate, (req, res) => {
-const { id } = req.params;
+router.post("/assets/add/:uuid", authenticate, (req, res) => {
+const { uuid } = req.params;
 const {
   label,
   url
@@ -134,14 +123,14 @@ const addition = {
   label,
   url
 };
-db.addAsset(id, addition)
+db.addAsset(uuid, addition)
 .then(added => {
   if (added) {
   res.status(200).json(added);
 } else {
   res.status(404).json({
     message:
-      "Unable to find any Product entry matching the identifier given in the URL"
+      "Unable to find any Product entry matching the UUID given in the URL"
   });
 }
 })

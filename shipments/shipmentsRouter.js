@@ -30,10 +30,10 @@ router.get("/", authenticate, (req, res) => {
     });
 });
 
-router.delete("/delete/:id", authenticate, (req, res) => {
+router.delete("/delete/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { id } = req.params;
-  db.deleteShipment(id, userId)
+  const { uuid } = req.params;
+  db.deleteShipment(uuid, userId)
     .then(deleted => {
       if (deleted) {
         res.status(200).json(deleted);
@@ -49,10 +49,11 @@ router.delete("/delete/:id", authenticate, (req, res) => {
     });
 });
 
-router.put("/edit/:id", authenticate, (req, res) => {
+router.put("/edit/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { id } = req.params;
+  const { uuid } = req.params;
   const {
+    dateArrived,
     dateShipped,
     productId,
     shippedTo,
@@ -62,6 +63,7 @@ router.put("/edit/:id", authenticate, (req, res) => {
     status
   } = req.body;
   const changes = {
+    dateArrived,
     dateShipped,
     productId,
     shippedTo,
@@ -70,7 +72,7 @@ router.put("/edit/:id", authenticate, (req, res) => {
     shippingType,
     status
   };
-  db.editShipment(id, userId, changes, productId)
+  db.editShipment(uuid, userId, changes, productId)
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);

@@ -9,18 +9,7 @@ const ShipmentsRouter = require("../shipments/shipmentsRouter.js");
 
 const server = express();
 
-var firebase = require("firebase");
-require("firebase/auth");
-require("firebase/database");
-// Initialize Firebase for the application
-var config = {
-  apiKey: process.env.FBAPIKEY,
-  authDomain: process.env.FBAUTHDOMAIN,
-  databaseURL: process.env.FBDATABASEURL,
-  storageBucket: process.env.FBSTORAGEBUCKET,
-  messagingSenderId: process.env.FBMESSAGINGSENDERID
-};
-firebase.initializeApp(config);
+
 // const originUrls = process.env.PERMITTED_URLS.split(',');
 
 // const corsOptions = {
@@ -48,15 +37,12 @@ server.get("/", (req, res) => {
     .utcOffset(-4)
     .format("h:mm:ss a")} EST.
       </p>
-      <h3>POST /api/users/register – Creates a new record on the ‘users’ table.</h3>
+      <h3>POST /api/users/login – Creates a JSON Web Token for user, and creates a new account if their firebase uid is new to scannAR.</h3>
+      <p> A request to this login route is expected to be made immediately after logging in through firebase.
+      Firebase login provides user data upon a successful login. Use this data in JSON form for making this POST request.
       <p>
-        Expected request body properties: { username (required, unique), password
-        (required), fullName (required), email, oAuth(boolean) }
-      </p>
-      <h3>POST /api/users/login – Creates a JSON Web Token for user</h3>
-      <p>
-        Accepted request body properties: { username (required), password
-        (required) }
+        Accepted request body properties: { uid (required), displayName, email, photoURL  }<br><br>
+        Returns a JSON web token.
       </p>
       <h3>GET /api/users/checkauth – Checks if user’s token is valid</h3>
       <p>
@@ -65,9 +51,9 @@ server.get("/", (req, res) => {
         componentDidMount() to set this.state.loggedIn upon browser refresh.
       </p>
       <h3>GET /api/users/accountinfo - Returns all account info for current user</h3>
-      <p>Expects JSON web token for Auth, and then returns JSON object representing user account data.</p>
+      <p>Expects JSON web token, and then returns JSON object representing user account data.</p>
       <h3>PUT /api/users/accountinfo/edit - Edits account info of currently logged in user</h3>
-      <p> Expect JSON web token for Auth. Expected request body properties: { username, password, fullName, email, oAuth } <br>
+      <p> Expect JSON web token. Expected request body properties: { displayName, email, photoURL } <br>
       Updates currently logged in user's account info and returns a JSON representing account info after update</p>
       <hr>
       <h2>Products Routes<h2>
@@ -83,18 +69,19 @@ server.get("/", (req, res) => {
       </h3>
       <p>
       Expected request body properties: { name, productDescription, weight, length, width, height, value, manufacturerId, fragile(boolean), userId } <br><br>
-       Adds the product for the
+      *Tracking Number Must be Sent as a String*
+      Adds the product for the
         current user. Returns an array of JSON
         objects, representing all products for current user.
       </p>
-      <h3> DELETE /api/products/delete/:id - Deletes a product based on the URL parameter</h3>
-      <p>Deletes a product with identifier matching the URL parameter. Returns an array of JSON
+      <h3> DELETE /api/products/delete/:uuid - Deletes a product based on the URL parameter</h3>
+      <p>Deletes a product with UUID matching the URL parameter. Returns an array of JSON
       objects, which represent all products for current user after deletion changes.</p>
-      <h3> PUT /api/products/edit/:id - Edits a product based on the URL parameter</h3>
+      <h3> PUT /api/products/edit/:uuid - Edits a product based on the URL parameter</h3>
       <p>Expects all the same request body properties as add product. None of these are required, only the ones you want to update. <br><br> Edits a product with identifier matching the URL parameter. Returns an array of JSON
       objects, which represent all products for current user after update changes.</p>
-      <h3> GET /api/products/assets/:id - Returns a list of all assets for product provided in URL</h3>
-      <h3> POST /api/products/assets/add/:id - Adds a product asset.</h3>
+      <h3> GET /api/products/assets/:uuid - Returns an array of JSON objects for all assets for product provided in URL. If there is only one found asset, it will still be returned as an array with a length of 1, requiring a map.</h3>
+      <h3> POST /api/products/assets/add/:uuid - Adds a product asset. Expected request body properties: { label, url, productId } (uuid is automatically generated)</h3>
       <hr>
       <h2>
       Shipments Routes
@@ -117,10 +104,10 @@ server.get("/", (req, res) => {
       creates trackingData object, and then uses the object for creation in database. Returns an array of JSON objects,
       which represents all of the shipments after the addition. Adds a productName property based upon given productId.
       </p>
-      <h3>DELETE to /api/shipments/delete/:id - Deletes a shipment based on URL parameter</h3>
-      <p>Deletes shipment with identifier matching the URL parameter. Returns an array of JSON
+      <h3>DELETE to /api/shipments/delete/:uuid - Deletes a shipment based on URL parameter</h3>
+      <p>Deletes shipment with UUID matching the URL parameter. Returns an array of JSON
       objects, which represent all shipments for current user after deletion changes. <p>
-      <h3>PUT to /api/shipments/edit/:id - Edits a shipment based on URL parameter</h3>
+      <h3>PUT to /api/shipments/edit/:uuid - Edits a shipment based on URL parameter</h3>
       <p>Expected request body properties: { dateShipped,
         productId,
         shippedTo,
