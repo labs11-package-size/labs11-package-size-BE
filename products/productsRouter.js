@@ -44,7 +44,7 @@ router.post("/add", authenticate, (req, res) => {
 router.delete("/delete/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
   const { uuid } = req.params;
-  db.deleteProduct(uuid, userId)
+  db.deleteProduct(uuid.toLowerCase(), userId)
     .then(deleted => {
       if (deleted) {
         res.status(200).json(deleted);
