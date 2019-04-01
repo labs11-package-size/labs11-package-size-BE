@@ -1,5 +1,4 @@
 const faker = require("faker");
-const bcrypt = require("bcryptjs");
 
 const fakerUsers = () => {
   let usersArray = []

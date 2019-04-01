@@ -46,13 +46,13 @@ async function editProduct(uuid, userId, changes){
 }
 
 async function getAssets(uuid) {
-  const found = await db("productassets").where({ uuid })
+  const found = await db("productassets").where({ uuid }).first()
   if (found) return found
   return null;
 }
 
-async function addAsset(uuid, request) {
-  const found = await db("products").where({ uuid })
+async function addAsset(productId, request) {
+  const found = await db("products").where({ productId })
   if (found) return db("productassets").insert({
     ...request,
     productId: found.identifier,

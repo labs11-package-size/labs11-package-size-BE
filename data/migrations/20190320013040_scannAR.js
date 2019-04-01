@@ -14,6 +14,9 @@ exports.up = function(knex, Promise) {
       column.string("name", 128).notNullable();
       column.string("productDescription", 512).defaultTo("");
       column.decimal("weight", 9, 2);
+      column.decimal("length", 3, 1);
+      column.decimal("width", 3, 1);
+      column.decimal("height", 3, 1);
       column.decimal("value", 9, 2);
       column.string("manufacturerId", 512).defaultTo("");
       column.boolean("fragile").defaultTo(false);

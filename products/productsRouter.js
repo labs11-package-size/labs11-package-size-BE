@@ -22,7 +22,10 @@ router.post("/add", authenticate, (req, res) => {
     weight,
     value,
     manufacturerId,
-    fragile
+    fragile,
+    length,
+    width,
+    height
   } = req.body;
   const addition = {
     name,
@@ -30,7 +33,10 @@ router.post("/add", authenticate, (req, res) => {
     weight,
     value,
     manufacturerId,
-    fragile
+    fragile,
+    length,
+    width,
+    height
   };
   db.addProduct(addition, userId)
     .then(added => {
@@ -69,7 +75,10 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     weight,
     value,
     manufacturerId,
-    fragile
+    fragile,
+    length,
+    width,
+    height
   } = req.body;
   const changes = {
     name,
@@ -77,7 +86,10 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     weight,
     value,
     manufacturerId,
-    fragile
+    fragile,
+    length,
+    width,
+    height
   };
   db.editProduct(uuid.toLowerCase(), userId, changes)
     .then(updated => {
@@ -113,24 +125,24 @@ router.get("/assets/:uuid", authenticate, (req, res) => {
       });
 })
 
-router.post("/assets/add/:uuid", authenticate, (req, res) => {
-const { uuid } = req.params;
+router.post("/assets/add", authenticate, (req, res) => {
 const {
   label,
-  url
+  url,
+  productId
 } = req.body;
 const addition = {
   label,
   url
 };
-db.addAsset(uuid.toLowerCase(), addition)
+db.addAsset(productId, addition)
 .then(added => {
   if (added) {
   res.status(200).json(added);
 } else {
   res.status(404).json({
     message:
-      "Unable to find any Product entry matching the UUID given in the URL"
+      "Unable to find any Product entry matching the productId"
   });
 }
 })
