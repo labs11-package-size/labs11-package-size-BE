@@ -6,6 +6,7 @@ const helmet = require("helmet");
 const UserRouter = require("../users/usersRouter.js");
 const ProductsRouter = require("../products/productsRouter.js");
 const ShipmentsRouter = require("../shipments/shipmentsRouter.js");
+const PackagingRouter = require("../packaging/packagingRouter.js");
 
 const server = express();
 
@@ -103,7 +104,7 @@ server.get("/", (req, res) => {
       <p>Expected request body properties: { <br>label, <br> url,<br> productId }<br>
       <hr>
       <h2>
-      Boxes Routes
+      Packaging Routes
       </h2>
       <hr>
       <h2>
@@ -151,5 +152,6 @@ server.get("/", (req, res) => {
 server.use("/api/users", UserRouter);
 server.use("/api/products", ProductsRouter);
 server.use("/api/shipments", ShipmentsRouter);
+server.use("/api/packaging", PackagingRouter);
 
 module.exports = server;

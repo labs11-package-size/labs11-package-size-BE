@@ -6,7 +6,7 @@ exports.up = function(knex, Promise) {
       column.string("photoURL", 512).defaultTo("");
       column.string("email", 128).defaultTo("");
       column.uuid("uuid").defaultTo("");
-      column.string("uid", 32).defaultTo("")
+      column.string("uid", 32).defaultTo("");
     })
     .createTable("products", column => {
       column.increments("identifier");
@@ -14,17 +14,17 @@ exports.up = function(knex, Promise) {
       column.string("name", 128).notNullable();
       column.string("productDescription", 512).defaultTo("");
       column.decimal("weight", 9, 2);
-      column.decimal("length", 3, 1);
-      column.decimal("width", 3, 1);
-      column.decimal("height", 3, 1);
       column.decimal("value", 9, 2);
+      column.string("length", 12).notNullable();
+      column.string("width", 12).notNullable();
+      column.decimal("height", 12).notNullable();
       column.string("manufacturerId", 512).defaultTo("");
       column.boolean("fragile").defaultTo(false);
       column.uuid("uuid");
       column
         .integer("userId")
         .unsigned()
-        .references("id")
+        .references("identifier")
         .inTable("users")
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
@@ -37,23 +37,43 @@ exports.up = function(knex, Promise) {
       column
         .integer("productId")
         .unsigned()
-        .references("id")
+        .references("identifier")
         .inTable("products")
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
     })
     .createTable("boxes", column => {
-      column.decimal("length", 3, 1);
-      column.decimal("width", 3, 1);
-      column.decimal("height", 3, 1);
+      column.increments("identifier");
+      column.string("dimensions");
+      column.string("maxWeight");
+      column.boolean("custom");
       column.uuid("uuid");
+      column.date("lastUpdated", 24).defaultTo("");
+    })
+    .createTable("productPackages", column => {
       column
         .integer("productId")
         .unsigned()
-        .references("id")
-        .inTable("products")
-        .onDelete("CASCADE")
-        .onUpdate("CASCADE");
+        .references("identifier")
+        .inTable("pendingShipments");
+      column
+        .integer("pendingShipmentsId")
+        .unsigned()
+        .references("identifier")
+        .inTable("pendingShipments");
+    })
+    .createTable("pendingShipments", column => {
+      column.increments("identifier");
+      column.integer("itemCount");
+      column.decimal("totalWeight", 7, 2);
+      column.string("modueURL", 512);
+      column.uuid("uuid");
+      column.date("lastUpdated", 24).defaultTo("");
+      column
+        .integer("boxId")
+        .unsigned()
+        .references("identifier")
+        .inTable("boxes");
     })
     .createTable("shipments", column => {
       column.increments("identifier");
@@ -70,10 +90,13 @@ exports.up = function(knex, Promise) {
       column
         .integer("productId")
         .unsigned()
-        .references("id")
-        .inTable("products")
-        .onDelete("CASCADE")
-        .onUpdate("CASCADE");
+        .references("identifier")
+        .inTable("products");
+      column
+        .integer("pendingShipmentsId")
+        .unsigned()
+        .references("identifier")
+        .inTable("pendingShipments");
     });
 };
 
@@ -83,5 +106,7 @@ exports.down = function(knex, Promise) {
     .dropTableIfExists("products")
     .dropTableIfExists("product_assets")
     .dropTableIfExists("boxes")
-    .dropTableIfExists("shipments");
+    .dropTableIfExists("shipments")
+    .dropTableIfExists("productPackages")
+    .dropTableIfExists("pendingShipments")
 };

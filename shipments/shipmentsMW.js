@@ -14,13 +14,13 @@ function uspsTracking(req, res, next) {
   const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
   if (!trackingNumber || !productId) {
     return res.status(400).json({
-      error:
+      message:
         "Invalid Request, please include properties trackingNumber & productId in the request body"
     });
   }
   if (typeof trackingNumber !== "string") {
     return res.status(400)
-    .json({ error: "Invalid Request, please provide trackingNumber as string" })
+    .json({ message: "Invalid Request, please provide trackingNumber as string" })
   }
   db.getProductName(productId)
     .then(found => {
@@ -29,7 +29,7 @@ function uspsTracking(req, res, next) {
           if (err) {
             return res
               .status(401)
-              .json({ error: "The tracking number supplied is not valid" });
+              .json({ message: "The tracking number supplied is not valid" });
           }
           let parsedDate = moment(
             data.activities[data.activities.length - 1].timestamp
@@ -49,7 +49,7 @@ function uspsTracking(req, res, next) {
         });
       } else {
         return res.status(404).json({
-          error: "No matching product found for given productId"
+          message: "No matching product found for given productId"
         });
       }
     })

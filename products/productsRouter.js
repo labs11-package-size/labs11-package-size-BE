@@ -48,8 +48,6 @@ router.post("/add", authenticate, (req, res) => {
 });
 
 router.delete("/delete/:uuid", authenticate, (req, res) => {
-  console.log(req.params.uuid)
-  console.log("typecheck", typeof req.params.uuid)
   const userId = req.decoded.subject;
   const { uuid } = req.params;
   db.deleteProduct(uuid.toLowerCase(), userId)
@@ -77,10 +75,7 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     weight,
     value,
     manufacturerId,
-    fragile,
-    length,
-    width,
-    height
+    fragile
   } = req.body;
   const changes = {
     name,
@@ -88,10 +83,7 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     weight,
     value,
     manufacturerId,
-    fragile,
-    length,
-    width,
-    height
+    fragile
   };
   db.editProduct(uuid.toLowerCase(), userId, changes)
     .then(updated => {
