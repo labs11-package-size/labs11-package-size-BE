@@ -1,6 +1,8 @@
 const faker = require("faker");
+const moment = require('moment')
 
 const fakerProducts = () => {
+  const currenttime = moment().format("YYYY-MM-DD hh:mm:ss")
   let productsArray = [];
   for (u = 3; u <= 5; u++) {
     for (p = 1; p <= 23; p++) {
@@ -14,7 +16,8 @@ const fakerProducts = () => {
         weight: Math.floor(Math.random() * (20)) + 1,
         value: faker.commerce.price(),
         userid: (u + 1),
-        uuid: faker.random.uuid()
+        uuid: faker.random.uuid(),
+        lastUpdated: currenttime
       });
     }
   }
