@@ -7,9 +7,9 @@ const axios = require("axios");
 
 router.post("/preview", authenticate, (req, res) => {
   console.log("req.body", req.body);
-  if (req.body && req.body.length) {
+  if (req.body.products && req.body.products.length) {
     productsdb
-      .getDimensions(req.body)
+      .getDimensions(req.body.products)
       .then(productsdata => {
         const itemsarray = [];
         productsdata.forEach(productdata => {
@@ -21,7 +21,7 @@ router.post("/preview", authenticate, (req, res) => {
           );
         });
         boxesdb
-          .getBoxes()
+          .getBoxes(req.body.boxType)
           .then(boxesdata => {
             const binsarray = [];
             for (i = 0; i < itemsarray.length; i++) {
