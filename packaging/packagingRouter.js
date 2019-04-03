@@ -15,9 +15,9 @@ router.post("/preview", authenticate, (req, res) => {
         productsdata.forEach(productdata => {
           console.log("getdimensions forEach", productdata);
           itemsarray.push(
-            `${productdata.identifier}:0:${productdata.weight}:${productdata.length}x${
-              productdata.width
-            }x${productdata.height}`
+            `${productdata.identifier}:0:${productdata.weight}:${
+              productdata.length
+            }x${productdata.width}x${productdata.height}`
           );
         });
         boxesdb
@@ -29,15 +29,18 @@ router.post("/preview", authenticate, (req, res) => {
             });
             console.log("bins", binsarray);
             console.log("items", itemsarray);
-            const apiURL = `www.packit4me.com/api/call/raw?bins=${binsarray.join()}&items=${itemsarray.join()}`;
-            console.log(apiURL)
+            const apiURL = `http://www.packit4me.com/api/call/raw?bins=${binsarray.join()}&items=${itemsarray.join()}`;
+            console.log(apiURL);
             axios
-              .post(apiURL)
+              .post(`${apiURL}`)
               .then(p4mdata => {
-                res.status(200).json(p4mdata);
+                const previewboxes = p4mdata.data.filter(boxobject => {
+                  return boxobject.items.length;
+                });
+                res.status(200).json(previewboxes);
               })
               .catch(err => {
-                console.log(err.message);
+                console.log(err);
               });
           })
           .catch(({ code, message }) => {
