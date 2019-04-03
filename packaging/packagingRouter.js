@@ -24,9 +24,12 @@ router.post("/preview", authenticate, (req, res) => {
           .getBoxes()
           .then(boxesdata => {
             const binsarray = [];
-            boxesdata.forEach(boxdata => {
-              binsarray.push(`${boxdata.identifier}:100:${boxdata.dimensions}`);
-            });
+            for (i = 0; i < itemsarray.length; i++) {
+              boxesdata.forEach(boxdata => {
+                const loopedIdentifier = boxdata.identifier + (i * 16);
+                binsarray.push(`${loopedIdentifier}:100:${boxdata.dimensions}`);
+              });
+            }
             console.log("bins", binsarray);
             console.log("items", itemsarray);
             const apiURL = `http://www.packit4me.com/api/call/raw?bins=${binsarray.join()}&items=${itemsarray.join()}`;
