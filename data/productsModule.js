@@ -74,7 +74,7 @@ async function addAsset(identifier, request) {
 function getDimensions(idarray) {
   return db("products")
     .select("identifier", "length", "width", "height", "weight")
-    .where('identifier', idarray);
+    .whereIn('identifier', idarray);
 }
 
 function findById(table, identifier) {

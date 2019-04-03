@@ -15,10 +15,6 @@ router.post("/add", authenticate, uspsTracking, (req, res) => {
     });
 });
 
-// I didn't make id: a URL parameter on this
-// route, because it would deviate from what the url param
-// points to on DELETE and PUT (productId vs shipmentId)
-
 router.get("/", authenticate, (req, res) => {
   const userId = req.decoded.subject;
   db.getShipments(userId)

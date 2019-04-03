@@ -8,5 +8,5 @@ module.exports = {
 function getBoxes() {
   return db("boxes")
     .select("identifier", "dimensions")
-    .where("custom", "false");
+    .where("custom", false);
 }
