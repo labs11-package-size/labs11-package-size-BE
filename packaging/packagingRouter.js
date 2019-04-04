@@ -8,8 +8,11 @@ const axios = require("axios");
 router.post("/preview", authenticate, (req, res) => {
   console.log("req.body", req.body);
   if (req.body.products && req.body.products.length) {
+    uuidArray = req.body.products.map(uuid => {
+      return uuid.toLowerCase();
+    });
     productsdb
-      .getDimensions(req.body.products)
+      .getDimensions(uuidArray)
       .then(productsdata => {
         const itemsarray = [];
         productsdata.forEach(productdata => {
@@ -61,8 +64,8 @@ router.post("/preview", authenticate, (req, res) => {
 });
 
 router.get("/getModel/:querystring", (req, res) => {
-  const { querystring } = req.params
-  const modelURL = `http://www.packit4me.com/api/call/preview?${querystring}`
+  const { querystring } = req.params;
+  const modelURL = `http://www.packit4me.com/api/call/preview?${querystring}`;
   axios
     .post(modelURL)
     .then(post => {
