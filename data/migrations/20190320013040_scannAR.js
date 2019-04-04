@@ -44,8 +44,9 @@ exports.up = function(knex, Promise) {
     })
     .createTable("boxes", column => {
       column.increments("identifier");
-      column.string("dimensions");
-      column.string("maxWeight");
+      column.string("dimensions", 24);
+      column.string("maxWeight", 12);
+      column.string("boxType", 12)
       column.boolean("custom");
       column.uuid("uuid");
       column.date("lastUpdated", 24).defaultTo("");
