@@ -119,7 +119,7 @@ router.get("/assets/:uuid", authenticate, (req, res) => {
       });
 })
 
-router.post("/assets/add/uuid", authenticate, (req, res) => {
+router.post("/assets/add/:uuid", authenticate, (req, res) => {
   const { uuid } = req.params;
 const {
   label,
