@@ -110,7 +110,7 @@ server.get("/", (req, res) => {
       <p>Expected Request Body: { products: (array of UUIDs of products), boxType (not required, "shipper" or "mailer") }</p>
       <p>Returns an array of JSON objects which each represent one preview box (packing configuration).<br>
       Example Returned JSON<br>
-      {<br>
+      [<br>{<br>
         "size": "10 x 8 x 4",<br>
         "id": "6",<br>
         "size_1": 10,<br>
@@ -153,6 +153,7 @@ server.get("/", (req, res) => {
                 "constraints": 0<br>
             }]<br> 
       }<br>
+    ]
 
       <hr>
       <h2>
