@@ -54,8 +54,8 @@ async function editProduct(uuid, userId, changes) {
 
 async function getAssets(uuid) {
   const found = await db("productassets")
-    .where({ uuid })
-    .first();
+    .where("products.uuid", uuid)
+    .join("products", "products.identifier", "=", "productassets.productId")
   if (found) return found;
   return null;
 }
