@@ -104,8 +104,56 @@ server.get("/", (req, res) => {
       <p>Expected request body properties: { <br>label, <br> url,}<br>
       <hr>
       <h2>
-      Packaging Routes
-      </h2>
+      Packaging Routes      </h2>
+      <h3>POST to /api/packaging/preview - Provides a list of preview boxes based on an array of UUIDs sent in the request body.</h3><br>
+
+      <p>Expected Request Body: { products: (array of UUIDs of products), boxType (not required, "shipper" or "mailer") }</p>
+      <p>Returns an array of JSON objects which each represent one preview box (packing configuration).<br>
+      Example Returned JSON<br>
+      {<br>
+        "size": "10 x 8 x 4",<br>
+        "id": "6",<br>
+        "size_1": 10,<br>
+        "size_2": 8,<br>
+        "size_3": 4,<br>
+        "weight_limit": 100,<br>
+        "curr_weight": 6,<br>
+        "item_count": 2,<br>
+        "items": [<br>
+            {<br>
+                "id": "8",<br>
+                "orig_size": "9 x 8 x 4",<br>
+                "sp_size": "9 x 8 x 4",<br>
+                "size_1": 9,<br>
+                "size_2": 8,<br>
+                "size_3": 4,<br>
+                "sp_size_1": 9,<br>
+                "sp_size_2": 8,<br>
+                "sp_size_3": 4,<br>
+                "x_origin_in_bin": -0.5,<br>
+                "y_origin_in_bin": 0,<br>
+                "z_origin_in_bin": 0,<br>
+                "weight": 1,<br>
+                "constraints": 0<br>
+            },<br>
+            {<br>
+                "id": "13",<br>
+                "orig_size": "8 x 1 x 3",<br>
+                "sp_size": "1 x 8 x 3",<br>
+                "size_1": 8,<br>
+                "size_2": 1,<br>
+                "size_3": 3,<br>
+                "sp_size_1": 1,<br>
+                "sp_size_2": 8,<br>
+                "sp_size_3": 3,<br>
+                "x_origin_in_bin": 4.5,<br>
+                "y_origin_in_bin": 0,<br>
+                "z_origin_in_bin": 0.5,<br>
+                "weight": 1,<br>
+                "constraints": 0<br>
+            }]<br> 
+      }<br>
+
       <hr>
       <h2>
       Shipments Routes

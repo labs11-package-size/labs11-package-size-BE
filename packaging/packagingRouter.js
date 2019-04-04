@@ -26,7 +26,7 @@ router.post("/preview", authenticate, (req, res) => {
             const binsarray = [];
             for (i = 0; i < itemsarray.length; i++) {
               boxesdata.forEach(boxdata => {
-                const loopedIdentifier = boxdata.identifier + (i * 16);
+                const loopedIdentifier = boxdata.identifier + i * 16;
                 binsarray.push(`${loopedIdentifier}:100:${boxdata.dimensions}`);
               });
             }
@@ -58,6 +58,19 @@ router.post("/preview", authenticate, (req, res) => {
       message: "Please provide an array of productIds within req.body.products"
     });
   }
+});
+
+router.get("/getModel/:querystring", (req, res) => {
+  const { querystring } = req.params
+  const modelURL = `http://www.packit4me.com/api/call/preview?${querystring}`
+  axios
+    .post(modelURL)
+    .then(post => {
+      res.send(post.data);
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
 });
 
 module.exports = router;

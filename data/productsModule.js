@@ -76,10 +76,10 @@ async function addAsset(uuid, request) {
   return null;
 }
 
-function getDimensions(idarray) {
+function getDimensions(uuidarray) {
   return db("products")
     .select("identifier", "length", "width", "height", "weight")
-    .whereIn("identifier", idarray);
+    .whereIn("uuid", uuidarray);
 }
 
 function findById(table, identifier) {
