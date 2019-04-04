@@ -29,7 +29,7 @@ exports.up = function(knex, Promise) {
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
     })
-    .createTable("product_assets", column => {
+    .createTable("productAssets", column => {
       column.increments("identifier");
       column.string("label", 24).defaultTo("");
       column.string("url", 512).defaultTo("");
@@ -105,7 +105,7 @@ exports.down = function(knex, Promise) {
   return knex.schema
     .dropTableIfExists("users")
     .dropTableIfExists("products")
-    .dropTableIfExists("product_assets")
+    .dropTableIfExists("productAssets")
     .dropTableIfExists("boxes")
     .dropTableIfExists("shipments")
     .dropTableIfExists("productPackages")

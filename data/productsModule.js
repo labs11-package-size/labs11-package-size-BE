@@ -53,28 +53,33 @@ async function editProduct(uuid, userId, changes) {
 }
 
 async function getAssets(uuid) {
-  const found = await db("productassets")
+  const found = await db("productAssets")
+    .select("productAssets.*")
     .where("products.uuid", uuid)
-    .join("products", "products.identifier", "=", "productassets.productId")
+    .join("products", "products.identifier", "=", "productAssets.productId");
   if (found) return found;
   return null;
 }
 
 async function addAsset(uuid, request) {
-  const found = await db("products").where({ uuid }).first();
-  if (found)
-    return db("productassets").insert({
+  const found = await db("products")
+    .where({ uuid })
+    .first();
+  if (found) {
+    const [id] = await db("productAssets").insert({
       ...request,
       productId: found.identifier,
       uuid: uuidTimestamp()
     });
+    return findById("productAssets", id);
+  }
   return null;
 }
 
 function getDimensions(idarray) {
   return db("products")
     .select("identifier", "length", "width", "height", "weight")
-    .whereIn('identifier', idarray);
+    .whereIn("identifier", idarray);
 }
 
 function findById(table, identifier) {
