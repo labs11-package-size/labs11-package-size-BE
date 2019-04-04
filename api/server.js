@@ -100,8 +100,8 @@ server.get("/", (req, res) => {
       Edits a product with identifier matching the URL parameter. Returns an array of JSON
       objects, which represent all products for current user after update changes.</p>
       <h3> GET /api/products/assets/:uuid - Returns an array of JSON objects for all assets for product provided in URL. If there is only one found asset, it will still be returned as an array with a length of 1, requiring a map.</h3>
-      <h3> POST /api/products/assets/add/ - Adds a product asset. </h3>
-      <p>Expected request body properties: { <br>label, <br> url,<br> productId }<br>
+      <h3> POST /api/products/assets/add/uuid - Adds a product asset and relates it to product with the UUID provided in the URL. </h3>
+      <p>Expected request body properties: { <br>label, <br> url,}<br>
       <hr>
       <h2>
       Packaging Routes

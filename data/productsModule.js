@@ -60,8 +60,8 @@ async function getAssets(uuid) {
   return null;
 }
 
-async function addAsset(identifier, request) {
-  const found = await db("products").where({ identifier });
+async function addAsset(uuid, request) {
+  const found = await db("products").where({ uuid }).first();
   if (found)
     return db("productassets").insert({
       ...request,

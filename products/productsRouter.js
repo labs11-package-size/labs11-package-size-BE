@@ -119,24 +119,24 @@ router.get("/assets/:uuid", authenticate, (req, res) => {
       });
 })
 
-router.post("/assets/add", authenticate, (req, res) => {
+router.post("/assets/add/uuid", authenticate, (req, res) => {
+  const { uuid } = req.params;
 const {
   label,
   url,
-  productId
 } = req.body;
 const addition = {
   label,
   url
 };
-db.addAsset(productId, addition)
+db.addAsset(uuid.toLowerCase(), addition)
 .then(added => {
   if (added) {
   res.status(200).json(added);
 } else {
   res.status(404).json({
     message:
-      "Unable to find any Product entry matching the productId"
+      "Unable to find any Product entry matching the UUID given in the URL"
   });
 }
 })
