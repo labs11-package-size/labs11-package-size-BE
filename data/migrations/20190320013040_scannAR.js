@@ -11,7 +11,7 @@ exports.up = function(knex, Promise) {
     .createTable("products", column => {
       column.increments("identifier");
       column.date("lastUpdated", 24);
-      column.string("name", 128).notNullable();
+      column.string("name", 32).notNullable();
       column.string("productDescription", 512).defaultTo("");
       column.decimal("weight", 9, 2);
       column.decimal("value", 9, 2);
@@ -66,8 +66,8 @@ exports.up = function(knex, Promise) {
     .createTable("pendingShipments", column => {
       column.increments("identifier");
       column.integer("itemCount");
-      column.decimal("totalWeight", 7, 2);
-      column.string("modueURL", 512);
+      column.decimal("totalWeight", 9, 2);
+      column.string("modelURL", 512);
       column.uuid("uuid");
       column.date("lastUpdated", 24).defaultTo("");
       column
