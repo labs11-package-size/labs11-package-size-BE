@@ -7,6 +7,7 @@ const UserRouter = require("../users/usersRouter.js");
 const ProductsRouter = require("../products/productsRouter.js");
 const ShipmentsRouter = require("../shipments/shipmentsRouter.js");
 const PackagingRouter = require("../packaging/packagingRouter.js");
+const serveStatic = require('serve-static')
 
 const server = express();
 
@@ -25,6 +26,7 @@ const testconfigvar = process.env.TESTINGVAR;
 server.use(express.json());
 server.use(cors());
 server.use(helmet());
+server.use(serveStatic('serveStatic', {'index': ['default.html', 'default.htm']}))
 
 server.get("/", (req, res) => {
   res.send(`
