@@ -78,7 +78,7 @@ async function addAsset(uuid, request) {
 
 function getDimensions(uuidarray) {
   return db("products")
-    .select("identifier", "length", "width", "height", "weight")
+    .select("identifier", "length", "width", "height", "weight", "uuid")
     .whereIn("uuid", uuidarray);
 }
 

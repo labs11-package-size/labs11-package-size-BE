@@ -11,17 +11,27 @@ router.post("/preview", authenticate, (req, res) => {
     uuidArray = req.body.products.map(uuid => {
       return uuid.toLowerCase();
     });
+    const uuidCount = {};
+    uuidArray.forEach(item => {
+      if (!uuidCount[item]) {
+        uuidCount[item] = 0;
+      }
+      uuidCount[item]++;
+    });
+    console.log(uuidCount)
     productsdb
       .getDimensions(uuidArray)
       .then(productsdata => {
         const itemsarray = [];
         productsdata.forEach(productdata => {
-          console.log("getdimensions forEach", productdata);
+          const duplicates = uuidCount[productdata.uuid]
+          for (i = 0; i < duplicates; i++) {
+          const loopedIdentifier = productdata.identifier + (100 * i)
           itemsarray.push(
-            `${productdata.identifier}:0:${productdata.weight}:${
+            `${loopedIdentifier}:0:${productdata.weight}:${
               productdata.length
             }x${productdata.width}x${productdata.height}`
-          );
+          )};
         });
         boxesdb
           .getBoxes(req.body.boxType)
