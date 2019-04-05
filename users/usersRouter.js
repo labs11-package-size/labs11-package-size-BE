@@ -12,15 +12,15 @@ router.post("/register", (req, res) => {
   register.password = hash;
   db.findUsername(register.username).then(found => {
     if (found.length) {
-      return res.status(405).json({ error: "Username must be unique" });
+      return res.status(405).json({ message: "Username must be unique" });
     } else {
       db.addUser(register)
         .then(user => {
           const token = usersMW.makejwt(user);
           res.status(200).json({ token });
         })
-        .catch(error => {
-          res.status(500).json(error);
+        .catch(({ code, message }) => {
+          res.status(code).json({ message });
         });
     }
   });
@@ -30,7 +30,7 @@ router.post("/login", (req, res) => {
   const { displayName, email, photoURL, uid } = req.body;
   const firebaseUser = { displayName, email, photoURL, uid };
   if (!uid || typeof uid !== "string") {
-    return res.status(401).json({ error: "Invalid server-side login. A uid must be provided as a string in req.body.uid"})
+    return res.status(401).json({ message: "Invalid server-side login. A uid must be provided as a string in req.body.uid"})
   }
   db.findUid(uid)
     .then(user => {

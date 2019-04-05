@@ -22,7 +22,10 @@ router.post("/add", authenticate, (req, res) => {
     weight,
     value,
     manufacturerId,
-    fragile
+    fragile,
+    length,
+    width,
+    height
   } = req.body;
   const addition = {
     name,
@@ -30,7 +33,10 @@ router.post("/add", authenticate, (req, res) => {
     weight,
     value,
     manufacturerId,
-    fragile
+    fragile,
+    length,
+    width,
+    height
   };
   db.addProduct(addition, userId)
     .then(added => {
@@ -44,7 +50,7 @@ router.post("/add", authenticate, (req, res) => {
 router.delete("/delete/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
   const { uuid } = req.params;
-  db.deleteProduct(uuid, userId)
+  db.deleteProduct(uuid.toLowerCase(), userId)
     .then(deleted => {
       if (deleted) {
         res.status(200).json(deleted);
@@ -79,7 +85,7 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     manufacturerId,
     fragile
   };
-  db.editProduct(uuid, userId, changes)
+  db.editProduct(uuid.toLowerCase(), userId, changes)
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);
@@ -97,7 +103,7 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
 
 router.get("/assets/:uuid", authenticate, (req, res) => {
   const { uuid } = req.params;
-  db.getAssets(uuid)
+  db.getAssets(uuid.toLowerCase())
     .then(found => {
       if (found) {
       res.status(200).json(found);
@@ -114,16 +120,16 @@ router.get("/assets/:uuid", authenticate, (req, res) => {
 })
 
 router.post("/assets/add/:uuid", authenticate, (req, res) => {
-const { uuid } = req.params;
+  const { uuid } = req.params;
 const {
   label,
-  url
+  url,
 } = req.body;
 const addition = {
   label,
   url
 };
-db.addAsset(uuid, addition)
+db.addAsset(uuid.toLowerCase(), addition)
 .then(added => {
   if (added) {
   res.status(200).json(added);

@@ -6,30 +6,30 @@ exports.up = function(knex, Promise) {
       column.string("photoURL", 512).defaultTo("");
       column.string("email", 128).defaultTo("");
       column.uuid("uuid").defaultTo("");
-      column.string("uid", 32).defaultTo("")
+      column.string("uid", 32).defaultTo("");
     })
     .createTable("products", column => {
       column.increments("identifier");
       column.date("lastUpdated", 24);
-      column.string("name", 128).notNullable();
+      column.string("name", 32).notNullable();
       column.string("productDescription", 512).defaultTo("");
       column.decimal("weight", 9, 2);
-      column.decimal("length", 9, 2);
-      column.decimal("width", 9, 2);
-      column.decimal("height", 9, 2);
       column.decimal("value", 9, 2);
+      column.decimal("length", 9, 2).notNullable();
+      column.decimal("width", 9, 2).notNullable();
+      column.decimal("height", 9, 2).notNullable();
       column.string("manufacturerId", 512).defaultTo("");
       column.boolean("fragile").defaultTo(false);
       column.uuid("uuid");
       column
         .integer("userId")
         .unsigned()
-        .references("id")
+        .references("identifier")
         .inTable("users")
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
     })
-    .createTable("product_assets", column => {
+    .createTable("productAssets", column => {
       column.increments("identifier");
       column.string("label", 24).defaultTo("");
       column.string("url", 512).defaultTo("");
@@ -37,23 +37,44 @@ exports.up = function(knex, Promise) {
       column
         .integer("productId")
         .unsigned()
-        .references("id")
+        .references("identifier")
         .inTable("products")
         .onDelete("CASCADE")
         .onUpdate("CASCADE");
     })
     .createTable("boxes", column => {
-      column.decimal("length", 3, 1);
-      column.decimal("width", 3, 1);
-      column.decimal("height", 3, 1);
+      column.increments("identifier");
+      column.string("dimensions", 24);
+      column.string("maxWeight", 12);
+      column.string("boxType", 12)
+      column.boolean("custom");
       column.uuid("uuid");
+      column.date("lastUpdated", 24).defaultTo("");
+    })
+    .createTable("productPackages", column => {
       column
         .integer("productId")
         .unsigned()
-        .references("id")
-        .inTable("products")
-        .onDelete("CASCADE")
-        .onUpdate("CASCADE");
+        .references("identifier")
+        .inTable("pendingShipments");
+      column
+        .integer("pendingShipmentsId")
+        .unsigned()
+        .references("identifier")
+        .inTable("pendingShipments");
+    })
+    .createTable("pendingShipments", column => {
+      column.increments("identifier");
+      column.integer("itemCount");
+      column.decimal("totalWeight", 9, 2);
+      column.string("modelURL", 512);
+      column.uuid("uuid");
+      column.date("lastUpdated", 24).defaultTo("");
+      column
+        .integer("boxId")
+        .unsigned()
+        .references("identifier")
+        .inTable("boxes");
     })
     .createTable("shipments", column => {
       column.increments("identifier");
@@ -70,10 +91,13 @@ exports.up = function(knex, Promise) {
       column
         .integer("productId")
         .unsigned()
-        .references("id")
-        .inTable("products")
-        .onDelete("CASCADE")
-        .onUpdate("CASCADE");
+        .references("identifier")
+        .inTable("products");
+      column
+        .integer("pendingShipmentsId")
+        .unsigned()
+        .references("identifier")
+        .inTable("pendingShipments");
     });
 };
 
@@ -81,7 +105,9 @@ exports.down = function(knex, Promise) {
   return knex.schema
     .dropTableIfExists("users")
     .dropTableIfExists("products")
-    .dropTableIfExists("product_assets")
+    .dropTableIfExists("productAssets")
     .dropTableIfExists("boxes")
-    .dropTableIfExists("shipments");
+    .dropTableIfExists("shipments")
+    .dropTableIfExists("productPackages")
+    .dropTableIfExists("pendingShipments")
 };

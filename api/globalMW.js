@@ -11,13 +11,13 @@ function authenticate(req, res, next) {
   
     if (token) {
       jwt.verify(token, jwtSecret, (err, decoded) => {
-        if (err) return res.status(401).json({ error: 'The token provided is not valid' });
+        if (err) return res.status(401).json({ message: 'The token provided is not valid' });
         req.decoded = decoded;
         next();
       });
     } else {
       return res.status(401).json({
-        error: 'No token provided, must be set on the Authorization Header',
+        message: 'No token provided, must be set on the Authorization Header',
       });
     }
   }
