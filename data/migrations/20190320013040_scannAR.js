@@ -65,8 +65,7 @@ exports.up = function(knex, Promise) {
     })
     .createTable("pendingShipments", column => {
       column.increments("identifier");
-      column.integer("itemCount");
-      column.decimal("totalWeight", 9, 2);
+      column.decimal("totalWeight", 9, 2).defaultTo("");
       column.string("modelURL", 512);
       column.uuid("uuid");
       column.date("lastUpdated", 24).defaultTo("");

@@ -5,6 +5,17 @@ const productsdb = require("../data/productsModule");
 const boxesdb = require("../data/boxesModule");
 const axios = require("axios");
 
+router.get("/", authenticate, (req, res) => {
+  const userId = req.decoded.subject;
+  db.getPackages(userId)
+  .then(found => {
+    res.status(200).json(found)
+  })
+  .catch(({ code, message }) => {
+    res.status(code).json({ message });
+  });
+})
+
 router.post("/preview", authenticate, (req, res) => {
   console.log("req.body", req.body);
   if (req.body.products && req.body.products.length) {
