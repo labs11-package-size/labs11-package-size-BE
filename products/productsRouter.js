@@ -132,7 +132,7 @@ const addition = {
 db.addAsset(uuid.toLowerCase(), addition)
 .then(added => {
   if (added) {
-  res.status(200).json(added);
+  res.status(201).json(added);
 } else {
   res.status(404).json({
     message:

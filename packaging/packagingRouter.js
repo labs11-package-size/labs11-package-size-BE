@@ -17,7 +17,7 @@ router.get("/", authenticate, (req, res) => {
 })
 
 router.post("/preview", authenticate, (req, res) => {
-  console.log("req.body", req.body);
+  console.log("req.body for /packaging/preview", req.body);
   if (req.body.products && req.body.products.length) {
     uuidArray = req.body.products.map(uuid => {
       return uuid.toLowerCase();
@@ -29,7 +29,6 @@ router.post("/preview", authenticate, (req, res) => {
       }
       uuidCount[item]++;
     });
-    console.log(uuidCount)
     productsdb
       .getDimensions(uuidArray)
       .then(productsdata => {
@@ -54,10 +53,7 @@ router.post("/preview", authenticate, (req, res) => {
                 binsarray.push(`${loopedIdentifier}:100:${boxdata.dimensions}`);
               });
             }
-            console.log("bins", binsarray);
-            console.log("items", itemsarray);
             const apiURL = `http://www.packit4me.com/api/call/raw?bins=${binsarray.join()}&items=${itemsarray.join()}`;
-            console.log(apiURL);
             axios
               .post(`${apiURL}`)
               .then(p4mdata => {
@@ -96,5 +92,17 @@ router.get("/getModel/:querystring", (req, res) => {
       res.status(code).json({ message });
     });
 });
+
+router.post("/add", authenticate, (req, res) => {
+  const userId = req.decoded.subject;
+  console.log("req.body for /packaging/add", req.body);
+  db.addPackages(req.body, userId)
+  .then(added => {
+    res.status(201).json(added)
+  })
+  .catch(({ code, message }) => {
+    res.status(code).json({ message });
+  });
+})
 
 module.exports = router;

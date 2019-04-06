@@ -46,17 +46,33 @@ exports.up = function(knex, Promise) {
       column.increments("identifier");
       column.string("dimensions", 24);
       column.string("maxWeight", 12);
-      column.string("boxType", 12)
+      column.string("boxType", 12);
       column.boolean("custom");
       column.uuid("uuid");
       column.date("lastUpdated", 24).defaultTo("");
+      column
+        .integer("userId")
+        .unsigned()
+        .references("identifier")
+        .inTable("users")
+        .onDelete("CASCADE")
+        .onUpdate("CASCADE");
     })
     .createTable("productPackages", column => {
       column
         .integer("productId")
         .unsigned()
         .references("identifier")
-        .inTable("pendingShipments");
+        .inTable("pendingShipments")
+        .onDelete("CASCADE")
+        .onUpdate("CASCADE");
+        column
+        .integer("shipmentId").defaultTo(0)
+        .unsigned()
+        .references("identifier")
+        .inTable("shipments")
+        .onDelete("CASCADE")
+        .onUpdate("CASCADE");
       column
         .integer("pendingShipmentsId")
         .unsigned()
@@ -80,23 +96,23 @@ exports.up = function(knex, Promise) {
       column.date("lastUpdated", 24).defaultTo("");
       column.date("dateShipped", 24).defaultTo("");
       column.date("dateArrived", 24).defaultTo("");
-      column.string("productName", 128).defaultTo("");
       column.string("shippedTo", 512).defaultTo("");
       column.string("trackingNumber", 128).defaultTo("");
       column.string("carrierName", 128).defaultTo("");
       column.string("shippingType", 128).defaultTo("");
       column.integer("status").defaultTo("");
       column.uuid("uuid");
+      column.string("productName", 128).defaultTo("");
       column
+        .integer("pendingShipmentsId")
+        .unsigned()
+        .references("pendingShipmentsId")
+        .inTable("productPackages")
+        column
         .integer("productId")
         .unsigned()
         .references("identifier")
         .inTable("products");
-      column
-        .integer("pendingShipmentsId")
-        .unsigned()
-        .references("identifier")
-        .inTable("pendingShipments");
     });
 };
 
@@ -108,5 +124,5 @@ exports.down = function(knex, Promise) {
     .dropTableIfExists("boxes")
     .dropTableIfExists("shipments")
     .dropTableIfExists("productPackages")
-    .dropTableIfExists("pendingShipments")
+    .dropTableIfExists("pendingShipments");
 };
