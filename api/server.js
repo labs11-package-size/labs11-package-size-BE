@@ -107,6 +107,8 @@ server.get("/", (req, res) => {
       <hr>
       <h2>
       Packaging Routes      </h2>
+      <h3>GET to /api/packging/ - Provides of list of all Packages-On-Deck for current user</h3>
+      <p>Returns an array of JSON objects which each represent one of the packages saved.</p> <br><br>
       <h3>POST to /api/packaging/preview - Provides a list of preview boxes based on an array of UUIDs sent in the request body.</h3><br>
 
       <p>Expected Request Body: { products: (array of UUIDs of products), boxType (not required, "shipper" or "mailer") }</p>
@@ -173,10 +175,10 @@ server.get("/", (req, res) => {
      Returns an array of JSON
       objects, which represent all shipments for current user.
       </p>
-      <h3>POST to /api/shipments/add - Adds a new shipment by using a USPS Tracking Number</h3>
+      <h3>POST to /api/shipments/add/:uuid - Adds a new shipment by using a USPS Tracking Number, and a Package's UUID in the URL</h3>
       <h5>*** Tracking Number must be sent as a string ***</h5>
       <p>
-      Expected request body properties: { <br>trackingNumber,<br> productId }. <br><br>Runs trackingNumber through USPS Api, 
+      Expected request body properties: { trackingNumber }. <br><br>Runs trackingNumber through USPS Api, 
       creates trackingData object, and then uses the object for creation in database. Returns an array of JSON objects,
       which represents all of the shipments after the addition.
       </p>

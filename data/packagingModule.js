@@ -7,40 +7,12 @@ module.exports = {
 
 function getPackages(userId) {
   return db("pendingShipments")
-    .select("pendingShipments.*", "products.name", "boxes.dimensions")
-    .join(
-      "productPackages",
-      "pendingShipments.identifier",
-      "=",
-      "productPackages.pendingShipmentsId"
-    )
-    .join("products", "productPackages.productId", "=", "products.identifier")
-    .join("boxes", "pendingShipments.boxId", "=", "boxes.identifier")
-    .where({ userId })
+    .select("pendingShipments.totalWeight", "pendingShipments.modelURL", "pendingShipments.uuid", "pendingShipments.dimensions", "pendingShipments.productNames", "pendingShipments.lastUpdated")
+    .where("pendingShipments.userId", userId)
     .then(found => {
-      const nameHolder = {};
-      found.forEach(packageObject => {
-        if (!nameHolder[packageObject.identifier]) {
-          nameHolder[packageObject.identifier] = [];
-        }
-        {
-          nameHolder[packageObject.identifier].push(packageObject.name);
-        }
+      return found.map(pendingShipment => {
+        pendingShipment.productNames = pendingShipment.productNames.split(",");
+        return pendingShipment
       });
-      console.log(nameHolder);
-      const idCount = {};
-      const result = [];
-      found.forEach(packageObject => {
-        const copyObject = { ...packageObject };
-        if (!idCount[copyObject.identifier]) {
-          console.log("running");
-          delete copyObject.name;
-          delete copyObject.boxId;
-          copyObject.productNames = nameHolder[copyObject.identifier];
-          idCount[copyObject.identifier] = 1;
-          result.push(copyObject);
-        }
-      });
-      return result;
     });
 }

@@ -13,8 +13,10 @@ const fakerShipments = () => {
         status: Math.floor(Math.random() * (5)) + 1,
         uuid: faker.random.uuid(),
         productId: (p + u * 23),
-        productName: faker.commerce.productName(),
-        lastUpdated: currenttime
+        productNames: `${faker.commerce.productName()},${faker.commerce.productName()},${faker.commerce.productName()}`,
+        lastUpdated: currenttime,
+        userId: u + 1,
+        dimensions: "8x6x4"
       });
     }
   }

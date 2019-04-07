@@ -13,8 +13,13 @@ module.exports = {
 function getShipments(userId) {
   return db("shipments")
     .select("shipments.*")
-    .join("products", "shipments.productId", "=", "products.identifier")
-    .where({ userId });
+    .where({ userId })
+    .then(shipmentsArray => {
+      return shipmentsArray.map(shipmentObject => {
+        shipmentObject.productNames = shipmentObject.productNames.split(",")
+        return shipmentObject
+      })
+    })
 }
 
 async function addShipment(shipment, userId) {
