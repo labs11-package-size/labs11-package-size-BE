@@ -39,7 +39,7 @@ function uspsTracking(req, res, next) {
         usps.requestData({ trackingNumber }, (err, data) => {
           if (err) {
             return res
-              .status(401)
+              .status(400)
               .json({ message: "The tracking number supplied is not valid" });
           }
           let parsedDate = moment(

@@ -17,7 +17,8 @@ const fakerProducts = () => {
         value: faker.commerce.price(),
         userid: (u + 1),
         uuid: faker.random.uuid(),
-        lastUpdated: currenttime
+        lastUpdated: currenttime,
+        thumbnail: `https://res.cloudinary.com/https-scannarserver-herokuapp-com/image/upload/c_scale,w_200/v1554672388/Product%20Assets/product${Math.floor(Math.random() * (10)) + 1}.jpg`
       });
     }
   }

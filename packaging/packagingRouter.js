@@ -19,6 +19,21 @@ router.get("/", authenticate, (req, res) => {
 router.post("/preview", authenticate, (req, res) => {
   console.log("req.body for /packaging/preview", req.body);
   if (req.body.products && req.body.products.length) {
+    if (req.body.boxType = "mailer" && req.body.products.length > 62) {
+      return res
+      .status(400)
+      .json({ message: "The length of items for the mailer search exceeds the limit of 62" });
+    }
+    if (req.body.boxType = "shipper" && req.body.products.length > 50) {
+      return res
+      .status(400)
+      .json({ message: "The length of items for the shipper search exceeds the limit of 50" });
+    }
+    if (!req.body.boxType && req.body.products.length > 29) {
+      return res
+      .status(400)
+      .json({ message: "The length of items for the mailer search exceeds the limit of 29" });
+    }
     uuidArray = req.body.products.map(uuid => {
       return uuid.toLowerCase();
     });
