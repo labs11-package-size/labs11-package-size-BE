@@ -107,8 +107,8 @@ server.get("/", (req, res) => {
       <hr>
       <h2>
       Packaging Routes      </h2>
-      <h3>GET to /api/packging/ - Provides of list of all Packages-On-Deck for current user</h3>
-      <p>Returns an array of JSON objects which each represent one of the packages saved.</p> <br><br>
+      <h3>GET to /api/packaging/ - Provides of list of all Packages-On-Deck for current user</h3>
+      <p>Returns an array of JSON objects which each represent one of the packages saved.</p> <br>
       <h3>POST to /api/packaging/preview - Provides a list of preview boxes based on an array of UUIDs sent in the request body.</h3><br>
 
       <p>Expected Request Body: { products: (array of UUIDs of products), boxType (not required, "shipper" or "mailer") }</p>
