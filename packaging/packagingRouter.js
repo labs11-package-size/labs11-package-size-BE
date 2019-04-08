@@ -19,29 +19,23 @@ router.get("/", authenticate, (req, res) => {
 router.post("/preview", authenticate, (req, res) => {
   console.log("req.body for /packaging/preview", req.body);
   if (req.body.products && req.body.products.length) {
-    if ((req.body.boxType = "mailer" && req.body.products.length > 62)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "The length of items for the mailer search exceeds the limit of 62"
-        });
+    if ((req.body.boxType === "mailer" && req.body.products.length > 62)) {
+      return res.status(400).json({
+        message:
+          "The length of items for the mailer search exceeds the limit of 62"
+      });
     }
-    if ((req.body.boxType = "shipper" && req.body.products.length > 50)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "The length of items for the shipper search exceeds the limit of 50"
-        });
+    if ((req.body.boxType === "shipper" && req.body.products.length > 50)) {
+      return res.status(400).json({
+        message:
+          "The length of items for the shipper search exceeds the limit of 50"
+      });
     }
     if (!req.body.boxType && req.body.products.length > 29) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "The length of items for the mailer search exceeds the limit of 29"
-        });
+      return res.status(400).json({
+        message:
+          "The length of items for the mailer search exceeds the limit of 29"
+      });
     }
     uuidArray = req.body.products.map(uuid => {
       return uuid.toLowerCase();
@@ -68,9 +62,11 @@ router.post("/preview", authenticate, (req, res) => {
             );
           }
         });
+        console.log("requested boxType", req.body.boxType)
         boxesdb
           .getBoxes(req.body.boxType)
           .then(boxesdata => {
+            console.log("boxesdata", boxesdata)
             const binsarray = [];
             for (i = 0; i < itemsarray.length; i++) {
               boxesdata.forEach(boxdata => {
@@ -120,8 +116,10 @@ router.get("/getModel/:querystring", (req, res) => {
 
 router.post("/add", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  console.log("req.body for /packaging/add", req.body);
-  db.addPackages(req.body, userId)
+  const { size, curr_weight, items } = req.body;
+  const addition = { size, curr_weight, items };
+  console.log("req.body for /packaging/add", addition);
+  db.addPackages(addition, userId)
     .then(added => {
       res.status(201).json(added);
     })
@@ -138,11 +136,9 @@ router.delete("/delete/:uuid", authenticate, (req, res) => {
       if (deleted) {
         res.status(200).json(deleted);
       } else {
-        res
-          .status(404)
-          .json({
-            message: "No package was found matching the UUID given in the URL"
-          });
+        res.status(404).json({
+          message: "No package was found matching the UUID given in the URL"
+        });
       }
     })
     .catch(({ code, message }) => {

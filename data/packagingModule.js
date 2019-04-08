@@ -1,9 +1,11 @@
 const db = require("../data/dbConfig.js");
-const uuidTimestamp = require("uuid/v1");
+const moment = require("moment");
+const uuidTimestamp = require("uuid/v1")
 
 module.exports = {
   getPackages,
-  deletePackage
+  deletePackage,
+  addPackages
 };
 
 function getPackages(userId) {
@@ -23,6 +25,24 @@ function getPackages(userId) {
         return pendingShipment;
       });
     });
+}
+
+function addPackages(request, userId) {
+  const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
+  // const modelQueryBuilder = () => {
+
+  // }
+  // const urlString 
+  return db('pendingShipments').insert({
+    productNames: namesString,
+    modelURL: urlString,
+    dimensions: request.size,
+    totalWeight: request.curr_weight,
+    uuid: uuidTimestamp(),
+    lastUpdated: currentDate,
+    userId
+  })
+
 }
 
 function deletePackage(uuid, userId) {

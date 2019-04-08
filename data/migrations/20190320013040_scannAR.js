@@ -79,7 +79,7 @@ exports.up = function(knex, Promise) {
       column.increments("identifier");
       column.decimal("totalWeight", 9, 2).defaultTo(121.34);
       column.string("modelURL", 512);
-      column.string("dimensions", 12).notNullable();
+      column.string("dimensions", 24).notNullable();
       column.uuid("uuid");
       column.date("lastUpdated", 24).defaultTo("");
       column
@@ -101,7 +101,7 @@ exports.up = function(knex, Promise) {
       column.string("trackingNumber", 128).defaultTo("");
       column.string("carrierName", 128).defaultTo("");
       column.string("shippingType", 128).defaultTo("");
-      column.string("dimensions", 12).notNullable();
+      column.string("dimensions", 24).notNullable();
       column.integer("status").defaultTo("");
       column.uuid("uuid");
       column.date("lastUpdated", 24).defaultTo("");

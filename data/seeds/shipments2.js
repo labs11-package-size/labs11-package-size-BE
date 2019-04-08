@@ -1,5 +1,7 @@
 const faker = require("faker");
 const moment = require('moment')
+const uuidTimestamp = require("uuid/v1")
+
 
 const fakerShipments = () => {
   const currenttime = moment().format("YYYY-MM-DD hh:mm:ss")
@@ -11,12 +13,12 @@ const fakerShipments = () => {
         dateShipped: moment(faker.date.past()).format("YYYY-MM-DD"),
         shippedTo: `${faker.address.city()}, ${faker.address.stateAbbr()} ${faker.address.zipCode()}`,
         status: Math.floor(Math.random() * (5)) + 1,
-        uuid: faker.random.uuid(),
+        uuid: uuidTimestamp(),
         productId: (p + u * 23),
         productNames: `${faker.commerce.productName()},${faker.commerce.productName()},${faker.commerce.productName()}`,
         lastUpdated: currenttime,
         userId: u + 1,
-        dimensions: "8x6x4"
+        dimensions: "8 x 6 x 4"
       });
     }
   }
