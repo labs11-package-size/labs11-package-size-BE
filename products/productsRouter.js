@@ -23,6 +23,7 @@ router.post("/add", authenticate, (req, res) => {
     value,
     manufacturerId,
     fragile,
+    thumbnail,
     length,
     width,
     height
@@ -34,6 +35,7 @@ router.post("/add", authenticate, (req, res) => {
     value,
     manufacturerId,
     fragile,
+    thumbnail,
     length,
     width,
     height
@@ -75,7 +77,8 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     weight,
     value,
     manufacturerId,
-    fragile
+    fragile,
+    thumbnail
   } = req.body;
   const changes = {
     name,
@@ -83,7 +86,8 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     weight,
     value,
     manufacturerId,
-    fragile
+    fragile,
+    thumbnail
   };
   db.editProduct(uuid.toLowerCase(), userId, changes)
     .then(updated => {

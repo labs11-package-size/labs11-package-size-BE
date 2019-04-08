@@ -14,7 +14,22 @@ module.exports = {
 };
 
 function getProducts(userId) {
-  return db("products").where({ userId });
+  return db("products")
+    .select(
+      "name",
+      "productDescription",
+      "weight",
+      "value",
+      "length",
+      "width",
+      "height",
+      "manufacturerId",
+      "fragile",
+      "thumbnail",
+      "uuid",
+      "lastUpdated"
+    )
+    .where({ userId });
 }
 
 async function addProduct(product, userId) {
@@ -26,7 +41,6 @@ async function addProduct(product, userId) {
     lastUpdated: currentDate
   });
   return getProducts(userId);
-  // return db("products").where({ userId });
 }
 
 function getProductName(identifier) {

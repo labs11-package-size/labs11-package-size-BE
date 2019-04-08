@@ -11,14 +11,14 @@ module.exports = {
 function getPackages(userId) {
   return db("pendingShipments")
     .select(
-      "pendingShipments.totalWeight",
-      "pendingShipments.modelURL",
-      "pendingShipments.uuid",
-      "pendingShipments.dimensions",
-      "pendingShipments.productNames",
-      "pendingShipments.lastUpdated"
+      "totalWeight",
+      "modelURL",
+      "uuid",
+      "dimensions",
+      "productNames",
+      "lastUpdated"
     )
-    .where("pendingShipments.userId", userId)
+    .where({ userId })
     .then(found => {
       return found.map(pendingShipment => {
         pendingShipment.productNames = pendingShipment.productNames.split(",");

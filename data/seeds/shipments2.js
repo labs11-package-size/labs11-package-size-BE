@@ -14,7 +14,6 @@ const fakerShipments = () => {
         shippedTo: `${faker.address.city()}, ${faker.address.stateAbbr()} ${faker.address.zipCode()}`,
         status: Math.floor(Math.random() * (5)) + 1,
         uuid: uuidTimestamp(),
-        productId: (p + u * 23),
         productNames: `${faker.commerce.productName()},${faker.commerce.productName()},${faker.commerce.productName()}`,
         lastUpdated: currenttime,
         userId: u + 1,

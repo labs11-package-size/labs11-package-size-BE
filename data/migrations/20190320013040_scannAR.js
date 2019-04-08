@@ -106,11 +106,6 @@ exports.up = function(knex, Promise) {
       column.uuid("uuid");
       column.date("lastUpdated", 24).defaultTo("");
       column
-        .integer("productId")
-        .unsigned()
-        .references("identifier")
-        .inTable("products");
-      column
         .integer("userId")
         .unsigned()
         .references("identifier")
