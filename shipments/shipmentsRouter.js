@@ -3,7 +3,7 @@ const db = require("../data/shipmentsModule.js");
 const { authenticate } = require("../api/globalMW.js");
 const { uspsTracking } = require("./shipmentsMW.js");
 
-router.post("/add", authenticate, uspsTracking, (req, res) => {
+router.post("/add/:uuid", authenticate, uspsTracking, (req, res) => {
   const trackingdata = req.trackingObject;
   const userId = req.decoded.subject;
   db.addShipment(trackingdata, userId)

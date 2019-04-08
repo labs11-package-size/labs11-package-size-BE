@@ -1,6 +1,6 @@
 const { UspsClient } = require("shipit");
 const usps = new UspsClient({ userId: `${process.env.TRACKUSERNAME}` });
-const db = require("../data/productsModule.js");
+const db = require("../data/dbConfig.js");
 const moment = require("moment");
 
 module.exports = {
@@ -9,26 +9,37 @@ module.exports = {
 
 // trackingNumber's value needs to be string format
 function uspsTracking(req, res, next) {
+  const userId = req.decoded.subject;
   const trackingNumber = req.body.trackingNumber;
-  const productId = req.body.productId;
-  const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
-  if (!trackingNumber || !productId) {
+  const { uuid }  = req.params
+  if (!uuid) {
     return res.status(400).json({
       message:
-        "Invalid Request, please include properties trackingNumber & productId in the request body"
+        "Invalid Request, please include a uuid in the url parameter"
+    });
+  }
+  const packageUUID = uuid.toLowerCase()
+  const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
+  if (!trackingNumber) {
+    return res.status(400).json({
+      message:
+        "Invalid Request, please include the property trackingNumber in the request body"
     });
   }
   if (typeof trackingNumber !== "string") {
     return res.status(400)
     .json({ message: "Invalid Request, please provide trackingNumber as string" })
   }
-  db.getProductName(productId)
+  db('pendingShipments')
+  .where("uuid", packageUUID)
+  .andWhere({ userId })
+  .first()
     .then(found => {
       if (found) {
         usps.requestData({ trackingNumber }, (err, data) => {
           if (err) {
             return res
-              .status(401)
+              .status(400)
               .json({ message: "The tracking number supplied is not valid" });
           }
           let parsedDate = moment(
@@ -41,15 +52,17 @@ function uspsTracking(req, res, next) {
             shippingType: data.service,
             status: data.status,
             carrierName: "USPS",
-            productName: found.name,
             trackingNumber,
-            productId
+            dimensions: found.dimensions,
+            totalWeight: found.totalWeight,
+            productNames: found.productNames,
+            userId
           };
           next();
         });
       } else {
         return res.status(404).json({
-          message: "No matching product found for given productId"
+          message: "No matching package found in this user's list for given UUID"
         });
       }
     })
