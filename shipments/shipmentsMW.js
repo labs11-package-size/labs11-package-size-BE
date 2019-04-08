@@ -53,7 +53,6 @@ function uspsTracking(req, res, next) {
             status: data.status,
             carrierName: "USPS",
             trackingNumber,
-            productId: 13,
             dimensions: found.dimensions,
             totalWeight: found.totalWeight,
             productNames: found.productNames,
