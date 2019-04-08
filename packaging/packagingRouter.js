@@ -8,31 +8,40 @@ const axios = require("axios");
 router.get("/", authenticate, (req, res) => {
   const userId = req.decoded.subject;
   db.getPackages(userId)
-  .then(found => {
-    res.status(200).json(found)
-  })
-  .catch(({ code, message }) => {
-    res.status(code).json({ message });
-  });
-})
+    .then(found => {
+      res.status(200).json(found);
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
+});
 
 router.post("/preview", authenticate, (req, res) => {
   console.log("req.body for /packaging/preview", req.body);
   if (req.body.products && req.body.products.length) {
-    if (req.body.boxType = "mailer" && req.body.products.length > 62) {
+    if ((req.body.boxType = "mailer" && req.body.products.length > 62)) {
       return res
-      .status(400)
-      .json({ message: "The length of items for the mailer search exceeds the limit of 62" });
+        .status(400)
+        .json({
+          message:
+            "The length of items for the mailer search exceeds the limit of 62"
+        });
     }
-    if (req.body.boxType = "shipper" && req.body.products.length > 50) {
+    if ((req.body.boxType = "shipper" && req.body.products.length > 50)) {
       return res
-      .status(400)
-      .json({ message: "The length of items for the shipper search exceeds the limit of 50" });
+        .status(400)
+        .json({
+          message:
+            "The length of items for the shipper search exceeds the limit of 50"
+        });
     }
     if (!req.body.boxType && req.body.products.length > 29) {
       return res
-      .status(400)
-      .json({ message: "The length of items for the mailer search exceeds the limit of 29" });
+        .status(400)
+        .json({
+          message:
+            "The length of items for the mailer search exceeds the limit of 29"
+        });
     }
     uuidArray = req.body.products.map(uuid => {
       return uuid.toLowerCase();
@@ -49,14 +58,15 @@ router.post("/preview", authenticate, (req, res) => {
       .then(productsdata => {
         const itemsarray = [];
         productsdata.forEach(productdata => {
-          const duplicates = uuidCount[productdata.uuid]
+          const duplicates = uuidCount[productdata.uuid];
           for (i = 0; i < duplicates; i++) {
-          const loopedIdentifier = productdata.identifier + (100 * i)
-          itemsarray.push(
-            `${loopedIdentifier}:0:${productdata.weight}:${
-              productdata.length
-            }x${productdata.width}x${productdata.height}`
-          )};
+            const loopedIdentifier = productdata.identifier + 100 * i;
+            itemsarray.push(
+              `${loopedIdentifier}:0:${productdata.weight}:${
+                productdata.length
+              }x${productdata.width}x${productdata.height}`
+            );
+          }
         });
         boxesdb
           .getBoxes(req.body.boxType)
@@ -112,12 +122,32 @@ router.post("/add", authenticate, (req, res) => {
   const userId = req.decoded.subject;
   console.log("req.body for /packaging/add", req.body);
   db.addPackages(req.body, userId)
-  .then(added => {
-    res.status(201).json(added)
-  })
-  .catch(({ code, message }) => {
-    res.status(code).json({ message });
-  });
-})
+    .then(added => {
+      res.status(201).json(added);
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
+});
+
+router.delete("/delete/:uuid", authenticate, (req, res) => {
+  const { uuid } = req.params;
+  const userId = req.decoded.subject;
+  db.deletePackage(uuid.toLowerCase(), userId)
+    .then(deleted => {
+      if (deleted) {
+        res.status(200).json(deleted);
+      } else {
+        res
+          .status(404)
+          .json({
+            message: "No package was found matching the UUID given in the URL"
+          });
+      }
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
+});
 
 module.exports = router;

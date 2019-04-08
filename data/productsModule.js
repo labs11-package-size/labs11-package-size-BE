@@ -38,6 +38,7 @@ function getProductName(identifier) {
 async function deleteProduct(uuid, userId) {
   const deleted = await db("products")
     .where({ uuid })
+    .andWhere({ userId })
     .del();
   if (deleted) return getProducts(userId);
   return null;
