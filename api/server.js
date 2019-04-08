@@ -7,10 +7,9 @@ const UserRouter = require("../users/usersRouter.js");
 const ProductsRouter = require("../products/productsRouter.js");
 const ShipmentsRouter = require("../shipments/shipmentsRouter.js");
 const PackagingRouter = require("../packaging/packagingRouter.js");
-const serveStatic = require('serve-static')
+const serveStatic = require("serve-static");
 
 const server = express();
-
 
 // const originUrls = process.env.PERMITTED_URLS.split(',');
 
@@ -26,7 +25,9 @@ const testconfigvar = process.env.TESTINGVAR;
 server.use(express.json());
 server.use(cors());
 server.use(helmet());
-server.use(serveStatic('serveStatic', {'index': ['default.html', 'default.htm']}))
+server.use(
+  serveStatic("serveStatic", { index: ["default.html", "default.htm"] })
+);
 
 server.get("/", (req, res) => {
   res.send(`
@@ -41,15 +42,16 @@ server.get("/", (req, res) => {
     .format("h:mm:ss a")} EST.
       </p>
       <h3>POST /api/users/login – Creates a JSON Web Token for user, and creates a new account if their firebase uid is new to scannAR.</h3>
-      <p> A request to this login route is expected to be made immediately after logging in through firebase.
+      
+      <p>A request to this login route is expected to be made immediately after logging in through firebase.
       Firebase login provides user data upon a successful login. Use this data in JSON form for making this POST request.
-      <p>
-      Accepted request body properties: { <br>
+      
+      <p>Accepted request body properties: { <br>
         uid (required), <br>
         displayName, <br>
         email, <br>
         photoURL
-      }<br><br>
+      }<br>
       Returns a JSON web token.
       </p>
       <h3>GET /api/users/checkauth – Checks if user’s token is valid</h3>
@@ -98,7 +100,7 @@ server.get("/", (req, res) => {
       <p>Deletes a product with UUID matching the URL parameter. Returns an array of JSON
       objects, which represent all products for current user after deletion changes.</p>
       <h3> PUT /api/products/edit/:uuid - Edits a product based on the URL parameter</h3>
-      <p>Expects all the same request body properties as add product. None of these are required, only the ones you want to update. <br><br> 
+      <p>Expects any of the same request body properties as add product. None of these are required, only the ones you want to update. <br><br> 
       Edits a product with identifier matching the URL parameter. Returns an array of JSON
       objects, which represent all products for current user after update changes.</p>
       <h3> GET /api/products/assets/:uuid - Returns an array of JSON objects for all assets for product provided in URL. If there is only one found asset, it will still be returned as an array with a length of 1, requiring a map.</h3>
@@ -108,12 +110,11 @@ server.get("/", (req, res) => {
       <h2>
       Packaging Routes      </h2>
       <h3>GET to /api/packaging/ - Provides of list of all Packages-On-Deck for current user</h3>
-      <p>Returns an array of JSON objects which each represent one of the packages saved.</p> <br>
-      <h3>POST to /api/packaging/preview - Provides a list of preview boxes based on an array of UUIDs sent in the request body.</h3><br>
-
+      <p>Returns an array of JSON objects which each represent one of the packages saved.</p>
+      <h3>POST to /api/packaging/preview - Provides a list of preview boxes based on an array of UUIDs sent in the request body.</h3>
       <p>Expected Request Body: { products: (array of UUIDs of products), boxType (not required, "shipper" or "mailer") }</p>
-      <p>Returns an array of JSON objects which each represent one preview box (packing configuration).<br>
-      Example Returned JSON<br>
+      <p>Returns an array of JSON objects which each represent one preview box (packing configuration).<br><br>
+      Example Returned JSON:<br>
       [<br>{<br>
         "size": "10 x 8 x 4",<br>
         "id": "6",<br>
@@ -157,8 +158,14 @@ server.get("/", (req, res) => {
                 "constraints": 0<br>
             }]<br> 
       }<br>
-    ]
-
+    ]<br>
+    <h3>POST to /api/packaging/add - Adds a "Package-On-Deck"</h3>
+    <p>Expected request body: One of, or an array of the bin objects as sent by the /api/packaging/preview GET route.<br>
+    <p>Returns an array of JSON objects, which represent all packages for current user after the addition</p>
+    <br><br>
+    <h3>DELETE to /api/packaging/delete/:uuid - Deletes a "Package-On-Deck"</h3>
+    <p>Deletes package of the given UUID if it is linked to current logged in user.<br>
+    Returns an array of JSON objects, which represent all packages for current user after the deletion.</p><br><br>
       <hr>
       <h2>
       Shipments Routes
@@ -185,19 +192,6 @@ server.get("/", (req, res) => {
       <h3>DELETE to /api/shipments/delete/:uuid - Deletes a shipment based on URL parameter</h3>
       <p>Deletes shipment with UUID matching the URL parameter. Returns an array of JSON
       objects, which represent all shipments for current user after deletion changes. <p>
-      <h3>PUT to /api/shipments/edit/:uuid - Edits a shipment based on URL parameter</h3>
-      <p>Expected request body properties: { <br>
-        dateArrived, <br>
-        dateShipped,<br>
-        productId,<br>
-        shippedTo,<br>
-        trackingNumber,<br>
-        carrierName,<br>
-        shippingType,<br>
-        status 
-      } <br>None of these are required, only what you want to update.<br><br>
-      Upon change of productId, the productName will be changed by server in respect. Returns an array of JSON
-      objects, which represents all shipments after the update has been made. <p>
     </div>
   `);
 });

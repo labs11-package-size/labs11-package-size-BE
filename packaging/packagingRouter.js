@@ -114,20 +114,6 @@ router.get("/getModel/:querystring", (req, res) => {
     });
 });
 
-router.post("/add", authenticate, (req, res) => {
-  const userId = req.decoded.subject;
-  const { size, curr_weight, items } = req.body;
-  const addition = { size, curr_weight, items };
-  console.log("req.body for /packaging/add", addition);
-  db.addPackages(addition, userId)
-    .then(added => {
-      res.status(201).json(added);
-    })
-    .catch(({ code, message }) => {
-      res.status(code).json({ message });
-    });
-});
-
 router.delete("/delete/:uuid", authenticate, (req, res) => {
   const { uuid } = req.params;
   const userId = req.decoded.subject;
@@ -145,5 +131,19 @@ router.delete("/delete/:uuid", authenticate, (req, res) => {
       res.status(code).json({ message });
     });
 });
+
+router.post("/add", authenticate, (req, res) => {
+  const userId = req.decoded.subject;
+  console.log("req.body for /packaging/add", req.body);
+  db.addPackages(req.body, userId)
+    .then(added => {
+      res.status(201).json(added);
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
+});
+
+
 
 module.exports = router;
