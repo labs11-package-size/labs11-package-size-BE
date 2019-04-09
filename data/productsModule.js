@@ -63,7 +63,7 @@ async function editProduct(uuid, userId, changes) {
   const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss");
   const edited = await db("products")
     .where({ uuid })
-    .update({ ...changes, userId, lastUpdated: currentDate });
+    .update({ ...changes, lastUpdated: currentDate });
   if (edited) return getProducts(userId);
   return null;
 }

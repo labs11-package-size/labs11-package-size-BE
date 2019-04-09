@@ -54,8 +54,6 @@ function addFunc(binObject, userId) {
     .whereIn("identifier", itemIds)
     .then(namesObjects => {
       const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
-      //   http://www.packit4me.com/api/call/preview?bins=0:100:10x8x4&items=12:0:9:3x10x4,
-      // 6:0:17:4x5x5,3:0:2:3x5x5&binId=0
       const modelQueryBuilder = () => {
         const itemsMapped = binObject.items.map(itemObject => {
           return `${itemObject.id}:0:${itemObject.weight}:${
@@ -64,9 +62,9 @@ function addFunc(binObject, userId) {
         });
         return `bins=${binObject.id}:${binObject.weight_limit}:${
           binObject.size_1
-        }x:${binObject.size_2}x:${
+        }x${binObject.size_2}x${
           binObject.size_3
-        }&items=${itemsMapped.join()}`;
+        }&items=${itemsMapped.join()}&binId=${binObject.id}`;
       };
       const urlString = `https://scannarserver.herokuapp.com/api/packaging/getModel/${modelQueryBuilder()}`;
       const namesArray = [];
