@@ -19,13 +19,13 @@ router.get("/", authenticate, (req, res) => {
 router.post("/preview", authenticate, (req, res) => {
   console.log("req.body for /packaging/preview", req.body);
   if (req.body.products && req.body.products.length) {
-    if ((req.body.boxType === "mailer" && req.body.products.length > 62)) {
+    if (req.body.boxType === "mailer" && req.body.products.length > 62) {
       return res.status(400).json({
         message:
           "The length of items for the mailer search exceeds the limit of 62"
       });
     }
-    if ((req.body.boxType === "shipper" && req.body.products.length > 50)) {
+    if (req.body.boxType === "shipper" && req.body.products.length > 50) {
       return res.status(400).json({
         message:
           "The length of items for the shipper search exceeds the limit of 50"
@@ -37,6 +37,17 @@ router.post("/preview", authenticate, (req, res) => {
           "The length of items for the mailer search exceeds the limit of 29"
       });
     }
+    const idParser = itemId => {
+      if (itemId.length > 2) {
+        if (itemId.lastIndexOf("0") === itemId.length - 2) {
+          return itemId.slice(itemId.length - 1);
+        } else {
+          return itemId.slice(itemId.length - 2);
+        }
+      } else {
+        return itemId;
+      }
+    };
     uuidArray = req.body.products.map(uuid => {
       return uuid.toLowerCase();
     });
@@ -62,11 +73,11 @@ router.post("/preview", authenticate, (req, res) => {
             );
           }
         });
-        console.log("requested boxType", req.body.boxType)
+        console.log("requested boxType", req.body.boxType);
         boxesdb
           .getBoxes(req.body.boxType)
           .then(boxesdata => {
-            console.log("boxesdata", boxesdata)
+            console.log("boxesdata", boxesdata);
             const binsarray = [];
             for (i = 0; i < itemsarray.length; i++) {
               boxesdata.forEach(boxdata => {
@@ -78,10 +89,37 @@ router.post("/preview", authenticate, (req, res) => {
             axios
               .post(`${apiURL}`)
               .then(p4mdata => {
-                const previewboxes = p4mdata.data.filter(boxobject => {
+                const previewBoxes = p4mdata.data.filter(boxobject => {
                   return boxobject.items.length;
                 });
-                res.status(200).json(previewboxes);
+                const eachItem = [];
+                previewBoxes.forEach(binObject => {
+                  binObject.items.forEach(itemObject => {
+                    if (!eachItem.includes(idParser(itemObject.id))) {
+                      eachItem.push(idParser(itemObject.id));
+                    }
+                  });
+                });
+                productsdb
+                  .getUUIDs(eachItem)
+                  .then(itemUUIDs => {
+                    console.log(itemUUIDs);
+                    const idsToUUIDs = {}
+                    itemUUIDs.forEach(uuidObject => {
+                      idsToUUIDs[uuidObject.identifier] = uuidObject.uuid
+                    })
+                    const parsedPreviewBoxes = previewBoxes.map(binObject => {
+                      binObject.items.forEach(itemObject => {
+                        itemObject.uuid = idsToUUIDs[idParser(itemObject.id)];
+                        return itemObject;
+                      });
+                      return binObject;
+                    });
+                    res.status(200).json(parsedPreviewBoxes)
+                  })
+                  .catch(err => {
+                    console.log(err);
+                  });
               })
               .catch(err => {
                 console.log(err);
@@ -143,7 +181,5 @@ router.post("/add", authenticate, (req, res) => {
       res.status(code).json({ message });
     });
 });
-
-
 
 module.exports = router;

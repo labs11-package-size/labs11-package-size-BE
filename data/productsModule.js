@@ -10,7 +10,8 @@ module.exports = {
   getAssets,
   addAsset,
   getProductName,
-  getDimensions
+  getDimensions,
+  getUUIDs
 };
 
 function getProducts(userId) {
@@ -102,4 +103,10 @@ function findById(table, identifier) {
   return db(`${table}`)
     .where({ identifier })
     .first();
+}
+
+function getUUIDs(eachItem) {
+  return db("products")
+  .select("identifier", "uuid")
+  .whereIn("identifier", eachItem)
 }
