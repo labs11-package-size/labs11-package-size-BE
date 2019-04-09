@@ -16,6 +16,7 @@ module.exports = {
 function getProducts(userId) {
   return db("products")
     .select(
+      "identifier",
       "name",
       "productDescription",
       "weight",
