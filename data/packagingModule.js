@@ -30,10 +30,10 @@ function getPackages(userId) {
 async function addPackages(request, userId) {
   if (Array.isArray(request)) {
     await request.forEach(previewObject => addFunc(previewObject, userId));
-    return getPackages(userId)
+    return getPackages(userId);
   } else {
     await addFunc(request, userId);
-    return getPackages(userId)
+    return getPackages(userId);
   }
 }
 
@@ -83,15 +83,21 @@ function addFunc(binObject, userId) {
     });
 }
 
-function deletePackage(uuid, userId) {
-  return db("pendingShipments")
-    .where({ uuid })
-    .andWhere({ userId })
-    .del()
-    .then(deleted => {
-      if (deleted) {
-        return getPackages(userId);
-      }
-      return null;
-    });
+async function deletePackage(uuid, userId) {
+  if (uuid.length > 50) {
+    const uuidArray = await uuid.split(",");
+    const deleted = await db("pendingShipments")
+      .whereIn("uuid", uuidArray)
+      .andWhere({ userId })
+      .del();
+    if (deleted) return getPackages(userId);
+    return null;
+  } else {
+    const deleted = await db("pendingShipments")
+      .where({ uuid })
+      .andWhere({ userId })
+      .del();
+    if (deleted) return getPackages(userId);
+    return null;
+  }
 }
