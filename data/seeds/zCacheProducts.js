@@ -29,7 +29,6 @@ exports.seed = function(knex, Promise) {
   return knex("products")
     .then(function() {
       // Inserts seed entries
-      uuidCheck()
       return knex("products").insert(fakerProducts());
     });
 };
