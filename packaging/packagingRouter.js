@@ -104,10 +104,10 @@ router.post("/preview", authenticate, (req, res) => {
                   .getUUIDs(eachItem)
                   .then(itemUUIDs => {
                     console.log(itemUUIDs);
-                    const idsToUUIDs = {}
+                    const idsToUUIDs = {};
                     itemUUIDs.forEach(uuidObject => {
-                      idsToUUIDs[uuidObject.identifier] = uuidObject.uuid
-                    })
+                      idsToUUIDs[uuidObject.identifier] = uuidObject.uuid;
+                    });
                     const parsedPreviewBoxes = previewBoxes.map(binObject => {
                       binObject.items.forEach(itemObject => {
                         itemObject.uuid = idsToUUIDs[idParser(itemObject.id)];
@@ -115,7 +115,7 @@ router.post("/preview", authenticate, (req, res) => {
                       });
                       return binObject;
                     });
-                    res.status(200).json(parsedPreviewBoxes)
+                    res.status(200).json(parsedPreviewBoxes);
                   })
                   .catch(err => {
                     console.log(err);
@@ -145,7 +145,100 @@ router.get("/getModel/:querystring", (req, res) => {
   axios
     .post(modelURL)
     .then(post => {
-      res.send(post.data);
+      const itemStart = querystring.indexOf("items=") + 6;
+      var cutString = querystring.slice(itemStart);
+      const itemsArray = [];
+      let commaCount = 0;
+      for (let position = 0; position < cutString.length; position++) {
+        if (cutString.charAt(position) == ",") {
+          commaCount += 1;
+        }
+      }
+      const firstColon = cutString.indexOf(":");
+      itemsArray.push(cutString.slice(0, firstColon));
+      for (let i = 0; i < commaCount; i++) {
+        let nextComma = cutString.indexOf(",") + 1;
+        var cutString = cutString.slice(nextComma);
+        let nextColon = cutString.indexOf(":");
+        itemsArray.push(cutString.slice(0, nextColon));
+      }
+
+      parsedItems = [];
+      itemsArray.forEach(item => {
+        if (item.length > 2) {
+          if (item.lastIndexOf("0") === item.length - 2) {
+            parsedItems.push(item.slice(item.length - 1));
+          } else {
+            parsedItems.push(item.slice(item.length - 2));
+          }
+        } else {
+          parsedItems.push(item);
+        }
+      });
+      productsdb
+        .getProductNames(parsedItems)
+        .then(namesObjectArray => {
+          let namesToIds = {};
+          let finalNamesArray = [];
+          namesObjectArray.forEach(namesObject => {
+            namesToIds[namesObject.identifier] = namesObject.name;
+          });
+          itemsArray.forEach(itemId => {
+            let finalNamesObject = {};
+            const idParser = () => {
+              if (itemId.length > 2) {
+                if (itemId.lastIndexOf("0") === itemId.length - 2) {
+                  return itemId.slice(itemId.length - 1);
+                } else {
+                  return itemId.slice(itemId.length - 2);
+                }
+              } else {
+                return itemId;
+              }
+            };
+            if (namesToIds[idParser()]) {
+              finalNamesObject.id = itemId;
+              finalNamesObject.name = namesToIds[idParser()];
+              finalNamesArray.push(finalNamesObject);
+            }
+          });
+          console.log("finalNamesArray", finalNamesArray);
+          const finalFunc = () => {
+            const funcArray = [];
+            for (let i = 0; i < finalNamesArray.length; i++) {
+              funcArray.push(`if (idOnly == "${finalNamesArray[i].id}") {
+                const itemName = "${finalNamesArray[i].name} -"
+                return itemName+itemSize
+              }`);
+            }
+            return funcArray.join("");
+          };
+          const finalResult = `function parseNames(key) {
+            let idOnly = key.slice(0, key.indexOf(":") - 1)
+            let itemSize = key.slice(key.indexOf(":") - 1)
+            console.log(idOnly)
+            ${finalFunc()}
+            };`;
+          console.log(finalResult);
+          const crossPosition = post.data.indexOf("createLegend(container) {") + 25;
+          const dataWithFunc = [
+            post.data.slice(0, crossPosition),
+            finalResult,
+            post.data.slice(crossPosition)
+          ].join("");
+          const bodyPosition = dataWithFunc.indexOf("key_cell.innerHTML") + 21;
+          const addition = `parseNames(key)`;
+          const newHTML = [
+            dataWithFunc.slice(0, bodyPosition),
+            addition,
+            dataWithFunc.slice(bodyPosition + 3)
+          ].join("");
+
+          res.send(newHTML);
+        })
+        .catch(({ code, message }) => {
+          res.status(code).json({ message });
+        });
     })
     .catch(({ code, message }) => {
       res.status(code).json({ message });

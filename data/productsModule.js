@@ -11,7 +11,8 @@ module.exports = {
   addAsset,
   getProductName,
   getDimensions,
-  getUUIDs
+  getUUIDs,
+  getProductNames
 };
 
 function getProducts(userId) {
@@ -49,6 +50,12 @@ function getProductName(identifier) {
   return db("products")
     .where({ identifier })
     .first();
+}
+
+function getProductNames(array) {
+  return db("products")
+  .select("name", "identifier")
+  .whereIn("identifier", array)
 }
 
 async function deleteProduct(uuid, userId) {
