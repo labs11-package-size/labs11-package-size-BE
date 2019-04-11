@@ -30,9 +30,16 @@ function getProducts(userId) {
       "fragile",
       "thumbnail",
       "uuid",
-      "lastUpdated"
+      "lastUpdated",
+      "images"
     )
-    .where({ userId });
+    .where({ userId })
+    .then(productsArray => {
+      return productsArray.map(productObject => {
+        productObject.images = productObject.images.split(",");
+        return productObject;
+      });
+    });
 }
 
 async function addProduct(product, userId) {
@@ -41,7 +48,8 @@ async function addProduct(product, userId) {
     ...product,
     userId: userId,
     uuid: uuidTimestamp(),
-    lastUpdated: currentDate
+    lastUpdated: currentDate,
+    images: product.images.join()
   });
   return getProducts(userId);
 }
@@ -54,8 +62,8 @@ function getProductName(identifier) {
 
 function getProductNames(array) {
   return db("products")
-  .select("name", "identifier")
-  .whereIn("identifier", array)
+    .select("name", "identifier")
+    .whereIn("identifier", array);
 }
 
 async function deleteProduct(uuid, userId) {
@@ -67,12 +75,19 @@ async function deleteProduct(uuid, userId) {
   return null;
 }
 
-async function editProduct(uuid, userId, changes) {
+async function editProduct(uuid, userId, changes, images) {
   const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss");
-  const edited = await db("products")
-    .where({ uuid })
-    .update({ ...changes, lastUpdated: currentDate });
-  if (edited) return getProducts(userId);
+  if (images) {
+    const edited = await db("products")
+      .where({ uuid })
+      .update({ ...changes, lastUpdated: currentDate, images: images.join() });
+    if (edited) return getProducts(userId);
+  } else {
+    const edited = await db("products")
+      .where({ uuid })
+      .update({ ...changes, lastUpdated: currentDate });
+    if (edited) return getProducts(userId);
+  }
   return null;
 }
 
@@ -114,6 +129,6 @@ function findById(table, identifier) {
 
 function getUUIDs(eachItem) {
   return db("products")
-  .select("identifier", "uuid")
-  .whereIn("identifier", eachItem)
+    .select("identifier", "uuid")
+    .whereIn("identifier", eachItem);
 }

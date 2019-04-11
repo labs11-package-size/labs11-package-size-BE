@@ -20,6 +20,7 @@ exports.up = function(knex, Promise) {
       column.string("manufacturerId", 512).defaultTo("");
       column.boolean("fragile").defaultTo(false);
       column.string("thumbnail", 512).defaultTo("");
+      column.string("images", 512).defaultTo("");
       column.uuid("uuid");
       column.date("lastUpdated", 24);
       column

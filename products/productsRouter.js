@@ -26,7 +26,8 @@ router.post("/add", authenticate, (req, res) => {
     thumbnail,
     length,
     width,
-    height
+    height,
+    images
   } = req.body;
   const addition = {
     name,
@@ -38,7 +39,8 @@ router.post("/add", authenticate, (req, res) => {
     thumbnail,
     length,
     width,
-    height
+    height,
+    images
   };
   db.addProduct(addition, userId)
     .then(added => {
@@ -78,7 +80,8 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     value,
     manufacturerId,
     fragile,
-    thumbnail
+    thumbnail,
+    images
   } = req.body;
   const changes = {
     name,
@@ -87,9 +90,9 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
     value,
     manufacturerId,
     fragile,
-    thumbnail
+    thumbnail,
   };
-  db.editProduct(uuid.toLowerCase(), userId, changes)
+  db.editProduct(uuid.toLowerCase(), userId, changes, images)
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);
