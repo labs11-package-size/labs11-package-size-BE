@@ -54,30 +54,17 @@ function addFunc(binObject, userId) {
     .whereIn("identifier", itemIds)
     .then(namesObjects => {
       const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
-      const modelQueryBuilder = () => {
-        const itemsMapped = binObject.items.map(itemObject => {
-          return `${itemObject.id}:0:${itemObject.weight}:${
-            itemObject.size_1
-          }x${itemObject.size_2}x${itemObject.size_3}`;
-        });
-        return `bins=${binObject.id}:${binObject.weight_limit}:${
-          binObject.size_1
-        }x${binObject.size_2}x${
-          binObject.size_3
-        }&items=${itemsMapped.join()}&binId=${binObject.id}`;
-      };
-      const urlString = `https://scannarserver.herokuapp.com/api/packaging/getModel/${modelQueryBuilder()}`;
       const namesArray = [];
       namesObjects.forEach(nameObject => {
         namesArray.push(nameObject.name);
       });
       return db("pendingShipments").insert({
         productNames: namesArray.join(),
-        modelURL: urlString,
         dimensions: binObject.size,
         totalWeight: binObject.curr_weight,
         uuid: uuidTimestamp(),
         lastUpdated: currentDate,
+        modelURL: binObject.modelURL,
         userId
       });
     });

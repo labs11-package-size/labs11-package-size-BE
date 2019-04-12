@@ -113,6 +113,21 @@ router.post("/preview", authenticate, (req, res) => {
                         itemObject.uuid = idsToUUIDs[idParser(itemObject.id)];
                         return itemObject;
                       });
+                      const modelQueryBuilder = () => {
+                        const itemsMapped = binObject.items.map(itemObject => {
+                          return `${itemObject.id}:0:${itemObject.weight}:${
+                            itemObject.size_1
+                          }x${itemObject.size_2}x${itemObject.size_3}`;
+                        });
+                        return `bins=${binObject.id}:${binObject.weight_limit}:${
+                          binObject.size_1
+                        }x${binObject.size_2}x${
+                          binObject.size_3
+                        }&items=${itemsMapped.join()}&binId=${binObject.id}`;
+                      };
+                      const urlString = `https://scannarserver.herokuapp.com/api/packaging/getModel/${modelQueryBuilder()}`;
+                      binObject.modelURL = urlString
+                      console.log(binObject)
                       return binObject;
                     });
                     res.status(200).json(parsedPreviewBoxes);
