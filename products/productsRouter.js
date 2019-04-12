@@ -16,6 +16,7 @@ router.get("/", authenticate, (req, res) => {
 
 router.post("/add", authenticate, (req, res) => {
   const userId = req.decoded.subject
+  const images = req.body.images
   const {
     name,
     productDescription,
@@ -27,7 +28,6 @@ router.post("/add", authenticate, (req, res) => {
     length,
     width,
     height,
-    images
   } = req.body;
   const addition = {
     name,
@@ -40,9 +40,8 @@ router.post("/add", authenticate, (req, res) => {
     length,
     width,
     height,
-    images
   };
-  db.addProduct(addition, userId)
+  db.addProduct(addition, userId, images)
     .then(added => {
       res.status(201).json(added);
     })
