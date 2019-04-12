@@ -16,12 +16,14 @@ function getPackages(userId) {
       "uuid",
       "dimensions",
       "productNames",
-      "lastUpdated"
+      "lastUpdated",
+      "productUuids"
     )
     .where({ userId })
     .then(found => {
       return found.map(pendingShipment => {
-        pendingShipment.productNames = pendingShipment.productNames.split(",");
+        pendingShipment.productNames = pendingShipment.productNames.split(", ");
+        pendingShipment.productUuids = pendingShipment.productUuids.split(",")
         return pendingShipment;
       });
     });
@@ -49,17 +51,34 @@ function addFunc(binObject, userId) {
       return item.id;
     }
   });
+  const itemCount = {}
+  itemIds.forEach(itemIdentifier => {
+    if (!itemCount[itemIdentifier]) {
+      itemCount[itemIdentifier] = 0;
+    }
+    itemCount[itemIdentifier]++
+  })
   return db("products")
-    .select("name")
+    .select("identifier", "name", "uuid")
     .whereIn("identifier", itemIds)
     .then(namesObjects => {
-      const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
+      const uuidsArray = [];
       const namesArray = [];
+      console.log(itemCount)
       namesObjects.forEach(nameObject => {
+        if (itemCount[nameObject.identifier] > 1) {
+          nameObject.name = `${nameObject.name} (x${itemCount[nameObject.identifier]})`
+          for (let i = 1; i < itemCount[nameObject.identifier]; i++) {
+            uuidsArray.push(nameObject.uuid)
+          }
+        }
+        uuidsArray.push(nameObject.uuid)
         namesArray.push(nameObject.name);
       });
+      const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
       return db("pendingShipments").insert({
-        productNames: namesArray.join(),
+        productNames: namesArray.join(", "),
+        productUuids: uuidsArray.join(),
         dimensions: binObject.size,
         totalWeight: binObject.curr_weight,
         uuid: uuidTimestamp(),

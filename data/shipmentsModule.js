@@ -24,12 +24,14 @@ function getShipments(userId) {
       "dimensions",
       "status",
       "uuid",
-      "lastUpdated"
+      "lastUpdated",
+      "productUuids"
     )
     .where({ userId })
     .then(shipmentsArray => {
       return shipmentsArray.map(shipmentObject => {
         shipmentObject.productNames = shipmentObject.productNames.split(",");
+        shipmentObject.productUuids = shipmentObject.productUuids.split(",");
         return shipmentObject;
       });
     });

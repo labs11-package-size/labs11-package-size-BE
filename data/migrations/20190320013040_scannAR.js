@@ -83,6 +83,7 @@ exports.up = function(knex, Promise) {
       column.string("dimensions", 24).notNullable();
       column.uuid("uuid");
       column.date("lastUpdated", 24).defaultTo("");
+      column.string("productUuids", 512).defaultTo("");
       column
         .integer("userId")
         .unsigned()
@@ -97,6 +98,8 @@ exports.up = function(knex, Promise) {
       column.date("dateShipped", 24).defaultTo("");
       column.date("dateArrived", 24).defaultTo("");
       column.string("productNames", 512).notNullable();
+      column.string("productUuids", 512).defaultTo("");
+      column.string("shipmentUuids", 512).defaultTo("")
       column.decimal("totalWeight", 9, 2).defaultTo(121.34);
       column.string("shippedTo", 512).defaultTo("");
       column.string("trackingNumber", 128).defaultTo("");
