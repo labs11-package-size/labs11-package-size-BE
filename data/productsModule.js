@@ -44,25 +44,17 @@ function getProducts(userId) {
 		});
 }
 
-async function addProduct(product, userId, images) {
-	console.log(product);
+async function addProduct(product, userId) {
 	const currentDate = await moment().format('YYYY-MM-DD hh:mm:ss');
-	if (images) {
-		await db('products').insert({
-			...product,
-			userId: userId,
-			uuid: uuidTimestamp(),
-			lastUpdated: currentDate,
-			images: product.images.join(),
-		});
-	} else {
-		await db('products').insert({
-			...product,
-			userId: userId,
-			uuid: uuidTimestamp(),
-			lastUpdated: currentDate,
-		});
-	}
+
+	await db('products').insert({
+		...product,
+		userId: userId,
+		uuid: uuidTimestamp(),
+		lastUpdated: currentDate,
+		images: product.images.join(),
+	});
+
 	return getProducts(userId);
 }
 
