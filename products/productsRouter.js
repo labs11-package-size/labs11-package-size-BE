@@ -26,6 +26,7 @@ router.post('/add', authenticate, (req, res) => {
 		manufacturerId,
 		fragile,
 		images,
+		thumbnail,
 	} = req.body;
 	const addition = {
 		name,
@@ -38,6 +39,7 @@ router.post('/add', authenticate, (req, res) => {
 		manufacturerId,
 		fragile,
 		images,
+		thumbnail,
 	};
 	db.addProduct(addition, userId)
 		.then(added => {
