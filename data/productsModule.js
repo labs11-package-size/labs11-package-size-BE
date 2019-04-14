@@ -16,6 +16,26 @@ module.exports = {
 };
 
 function getProducts(userId) {
+	const list = db('products')
+		.select(
+			'identifier',
+			'name',
+			'productDescription',
+			'weight',
+			'value',
+			'length',
+			'width',
+			'height',
+			'manufacturerId',
+			'fragile',
+			'thumbnail',
+			'uuid',
+			'lastUpdated',
+			'images',
+		)
+		.where({ userId })
+		.limit(20);
+
 	return db('products')
 		.select(
 			'identifier',
@@ -34,8 +54,8 @@ function getProducts(userId) {
 			'images',
 		)
 		.where({ userId })
-		.limit(20)
-		.offset(20)
+
+		.offset(list.length)
 		.then(productsArray => {
 			return productsArray.map(productObject => {
 				productObject.images = productObject.images.split(',');
