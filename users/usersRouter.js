@@ -12,33 +12,44 @@ router.post("/register", (req, res) => {
   register.password = hash;
   db.findUsername(register.username).then(found => {
     if (found.length) {
-      return res.status(405).json({ error: "Username must be unique" });
+      return res.status(405).json({ message: "Username must be unique" });
     } else {
       db.addUser(register)
         .then(user => {
           const token = usersMW.makejwt(user);
           res.status(200).json({ token });
         })
-        .catch(error => {
-          res.status(500).json(error);
+        .catch(({ code, message }) => {
+          res.status(code).json({ message });
         });
     }
   });
 });
 
 router.post("/login", (req, res) => {
-  const { username, password } = req.body;
-  db.findUsername(username)
-    .first()
+  const { displayName, email, photoURL, uid } = req.body;
+  const firebaseUser = { displayName, email, photoURL, uid };
+  if (!uid || typeof uid !== "string") {
+    return res.status(401).json({ message: "Invalid server-side login. A uid must be provided as a string in req.body.uid"})
+  }
+  db.findUid(uid)
     .then(user => {
-      if (user && bcrypt.compareSync(password, user.password)) {
-        const token = usersMW.makejwt(user);
+      if (user.length) {
+        const token = usersMW.makejwt(user[0]);
         res.status(200).json({ token });
       } else {
-        res
-          .status(401)
-          .json({ message: "Invalid Login Credentials, Try Again" });
+        db.addUser(firebaseUser)
+          .then(newuser => {
+            const token = usersMW.makejwt(newuser);
+            res.status(201).json({ token });
+          })
+          .catch(({ code, message }) => {
+            res.status(code).json({ message });
+          });
       }
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
     });
 });
 
@@ -55,13 +66,9 @@ router.get("/accountinfo", authenticate, (req, res) => {
 
 router.put("/accountinfo/edit", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { username, password, fullName, email, oAuth } = req.body;
+  const { displayName, email, photoURL } = req.body;
   const changes = {
-    username,
-    password,
-    fullName,
-    email,
-    oAuth
+    displayName, email, photoURL
   };
   db.editUser(userId, changes)
     .then(updated => {

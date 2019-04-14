@@ -20,6 +20,7 @@
   "homepage": "https://github.com/jtb36688/scannAR-BE#readme",
   "description": "",
   "dependencies": {
+    "axios": "^0.18.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^7.0.0",
@@ -31,6 +32,7 @@
     "knex": "^0.16.3",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
+    "serve-static": "^1.13.2",
     "shipit": "^1.2.0",
     "sqlite3": "^4.0.6",
     "uuid": "^3.3.2"

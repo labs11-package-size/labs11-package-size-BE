@@ -2,19 +2,19 @@ const db = require("../data/dbConfig.js");
 const uuidTimestamp = require("uuid/v1")
 
 module.exports = {
-  findUsername,
+  findUid,
   addUser,
   getUser,
   editUser
 };
 
-function findUsername(username) {
-  return db("users").where("username", username);
+function findUid(uid) {
+  return db("users").where({ uid })
 }
 
-async function addUser(user) {
+async function addUser(firebaseUser) {
   const [id] = await db("users").insert({
-    ...user,
+    ...firebaseUser,
     uuid: uuidTimestamp()
   });
   return findById("users", id);

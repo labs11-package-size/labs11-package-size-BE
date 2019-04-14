@@ -1,63 +1,146 @@
-const db = require("../data/dbConfig.js");
-const uuidTimestamp = require("uuid/v1")
+const db = require('../data/dbConfig.js');
+const uuidTimestamp = require('uuid/v1');
+const moment = require('moment');
 
 module.exports = {
-  getProducts,
-  addProduct,
-  deleteProduct,
-  editProduct,
-  getAssets,
-  addAsset,
-  getProductName
+	getProducts,
+	addProduct,
+	deleteProduct,
+	editProduct,
+	getAssets,
+	addAsset,
+	getProductName,
+	getDimensions,
+	getUUIDs,
+	getProductNames,
 };
 
 function getProducts(userId) {
-  return db("products").where({ userId });
+	return db('products')
+		.select(
+			'identifier',
+			'name',
+			'productDescription',
+			'weight',
+			'value',
+			'length',
+			'width',
+			'height',
+			'manufacturerId',
+			'fragile',
+			'thumbnail',
+			'uuid',
+			'lastUpdated',
+			'images',
+		)
+		.where({ userId })
+		.limit(20)
+		.offset(20)
+		.then(productsArray => {
+			return productsArray.map(productObject => {
+				productObject.images = productObject.images.split(',');
+				return productObject;
+			});
+		});
 }
 
-async function addProduct(product, userId) {
-  await db("products").insert({
-    ...product,
-    userId: userId,
-    uuid: uuidTimestamp()
-  });
-  return getProducts(userId)
-  // return db("products").where({ userId });
+async function addProduct(product, userId, images) {
+	console.log(product);
+	const currentDate = await moment().format('YYYY-MM-DD hh:mm:ss');
+	if (images) {
+		await db('products').insert({
+			...product,
+			userId: userId,
+			uuid: uuidTimestamp(),
+			lastUpdated: currentDate,
+			images: product.images.join(),
+		});
+	} else {
+		await db('products').insert({
+			...product,
+			userId: userId,
+			uuid: uuidTimestamp(),
+			lastUpdated: currentDate,
+		});
+	}
+	return getProducts(userId);
 }
 
 function getProductName(identifier) {
-  return db("products").where({ identifier }).first()
+	return db('products')
+		.where({ identifier })
+		.first();
 }
 
-async function deleteProduct(identifier, userId){
-  const deleted = await db("products").where({ identifier }).del()
-    if (deleted) return getProducts(userId)
-    return null;
+function getProductNames(array) {
+	return db('products')
+		.select('name', 'identifier')
+		.whereIn('identifier', array);
 }
 
-async function editProduct(identifier, userId, changes){
-  const edited = await db('products').where({ identifier }).update({...changes, userId})
-  if (edited) return getProducts(userId)
-  return null;
+async function deleteProduct(uuid, userId) {
+	const deleted = await db('products')
+		.where({ uuid })
+		.andWhere({ userId })
+		.del();
+	if (deleted) return getProducts(userId);
+	return null;
 }
 
-async function getAssets(identifier) {
-  const found = await db("productassets").where({ identifier })
-  if (found) return found
-  return null;
+async function editProduct(uuid, userId, changes, images) {
+	const currentDate = await moment().format('YYYY-MM-DD hh:mm:ss');
+	if (images) {
+		const edited = await db('products')
+			.where({ uuid })
+			.update({ ...changes, lastUpdated: currentDate, images: images.join() });
+		if (edited) return getProducts(userId);
+	} else {
+		const edited = await db('products')
+			.where({ uuid })
+			.update({ ...changes, lastUpdated: currentDate });
+		if (edited) return getProducts(userId);
+	}
+	return null;
 }
 
-async function addAsset(identifier, request) {
-  const found = await db("products").where({ identifier })
-  if (found) return db("productassets").insert({
-    ...request,
-    productId: identifier,
-    uuid: uuidTimestamp()
-  })
+async function getAssets(uuid) {
+	const found = await db('productAssets')
+		.select('productAssets.*')
+		.where('products.uuid', uuid)
+		.join('products', 'products.identifier', '=', 'productAssets.productId');
+	if (found) return found;
+	return null;
+}
+
+async function addAsset(uuid, request) {
+	const found = await db('products')
+		.where({ uuid })
+		.first();
+	if (found) {
+		const [id] = await db('productAssets').insert({
+			...request,
+			productId: found.identifier,
+			uuid: uuidTimestamp(),
+		});
+		return findById('productAssets', id);
+	}
+	return null;
+}
+
+function getDimensions(uuidarray) {
+	return db('products')
+		.select('identifier', 'length', 'width', 'height', 'weight', 'uuid')
+		.whereIn('uuid', uuidarray);
 }
 
 function findById(table, identifier) {
-  return db(`${table}`)
-    .where({ identifier })
-    .first();
+	return db(`${table}`)
+		.where({ identifier })
+		.first();
+}
+
+function getUUIDs(eachItem) {
+	return db('products')
+		.select('identifier', 'uuid')
+		.whereIn('identifier', eachItem);
 }

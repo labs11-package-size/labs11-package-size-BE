@@ -3,7 +3,7 @@ const db = require("../data/shipmentsModule.js");
 const { authenticate } = require("../api/globalMW.js");
 const { uspsTracking } = require("./shipmentsMW.js");
 
-router.post("/add", authenticate, uspsTracking, (req, res) => {
+router.post("/add/:uuid", authenticate, uspsTracking, (req, res) => {
   const trackingdata = req.trackingObject;
   const userId = req.decoded.subject;
   db.addShipment(trackingdata, userId)
@@ -14,10 +14,6 @@ router.post("/add", authenticate, uspsTracking, (req, res) => {
       res.status(code).json({ message });
     });
 });
-
-// I didn't make id: a URL parameter on this
-// route, because it would deviate from what the url param
-// points to on DELETE and PUT (productId vs shipmentId)
 
 router.get("/", authenticate, (req, res) => {
   const userId = req.decoded.subject;
@@ -30,10 +26,10 @@ router.get("/", authenticate, (req, res) => {
     });
 });
 
-router.delete("/delete/:id", authenticate, (req, res) => {
+router.delete("/delete/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { id } = req.params;
-  db.deleteShipment(id, userId)
+  const { uuid } = req.params;
+  db.deleteShipment(uuid.toLowerCase(), userId)
     .then(deleted => {
       if (deleted) {
         res.status(200).json(deleted);
@@ -49,10 +45,11 @@ router.delete("/delete/:id", authenticate, (req, res) => {
     });
 });
 
-router.put("/edit/:id", authenticate, (req, res) => {
+router.put("/edit/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { id } = req.params;
+  const { uuid } = req.params;
   const {
+    dateArrived,
     dateShipped,
     productId,
     shippedTo,
@@ -62,6 +59,7 @@ router.put("/edit/:id", authenticate, (req, res) => {
     status
   } = req.body;
   const changes = {
+    dateArrived,
     dateShipped,
     productId,
     shippedTo,
@@ -70,7 +68,7 @@ router.put("/edit/:id", authenticate, (req, res) => {
     shippingType,
     status
   };
-  db.editShipment(id, userId, changes, productId)
+  db.editShipment(uuid.toLowerCase(), userId, changes, productId)
     .then(updated => {
       if (updated) {
         res.status(200).json(updated);
