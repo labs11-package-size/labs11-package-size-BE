@@ -24,7 +24,7 @@ const fakerUsers = () => {
       displayName: "Randy Wilson",
       uuid: "28e13d24-4ffa-11e9-8647-d663bd873d93",
       email: "phoenixrr2113@gmail.com",
-      uid: "gf3skp6A4lMSN8C1jdCfI67s60e2",
+      uid: "CkUWYZ0xAdZtmL8jdz8dkMNpNE82",
       photoURL: "https://ca.slack-edge.com/T4JUEB3ME-U805SN6TC-f579479336b7-48"
     },
     {
