@@ -25,7 +25,6 @@ router.post('/add', authenticate, (req, res) => {
 		value,
 		manufacturerId,
 		fragile,
-		images,
 		thumbnail,
 	} = req.body;
 	const addition = {
@@ -38,10 +37,9 @@ router.post('/add', authenticate, (req, res) => {
 		value,
 		manufacturerId,
 		fragile,
-		images,
 		thumbnail,
 	};
-	db.addProduct(addition, userId)
+	db.addProduct(addition, userId, req.body.images)
 		.then(added => {
 			res.status(201).json(added);
 		})
@@ -53,7 +51,7 @@ router.post('/add', authenticate, (req, res) => {
 router.delete('/delete/:id', authenticate, (req, res) => {
 	const userId = req.decoded.subject;
 	const { id } = req.params;
-	db.deleteProduct(id, userId)
+	db.deleteProduct(id.toLowerCase(), userId)
 		.then(deleted => {
 			if (deleted) {
 				res.status(200).json(deleted);
@@ -94,7 +92,7 @@ router.put('/edit/:id', authenticate, (req, res) => {
 		manufacturerId,
 		fragile,
 	};
-	db.editProduct(id, userId, changes)
+	db.editProduct(id.toLowerCase(), userId, changes)
 		.then(updated => {
 			if (updated) {
 				res.status(200).json(updated);
@@ -112,7 +110,7 @@ router.put('/edit/:id', authenticate, (req, res) => {
 
 router.get('/assets/:id', authenticate, (req, res) => {
 	const { id } = req.params;
-	db.getAssets(id)
+	db.getAssets(id.toLowerCase())
 		.then(found => {
 			if (found) {
 				res.status(200).json(found);
@@ -135,7 +133,7 @@ router.post('/assets/add/:id', authenticate, (req, res) => {
 		label,
 		url,
 	};
-	db.addAsset(id, addition)
+	db.addAsset(id.toLowerCase(), addition)
 		.then(added => {
 			if (added) {
 				res.status(200).json(added);
