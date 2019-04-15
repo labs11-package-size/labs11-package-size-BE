@@ -72,7 +72,7 @@ async function addProduct(product, userId, images) {
       userId: userId,
       uuid: uuidTimestamp(),
       lastUpdated: currentDate,
-      images: product.images.join()
+      images: images.join()
     });
   } else {
     await db("products").insert({
