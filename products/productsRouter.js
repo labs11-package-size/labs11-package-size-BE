@@ -26,6 +26,7 @@ router.post('/add', authenticate, (req, res) => {
 		manufacturerId,
 		fragile,
 		thumbnail,
+		images
 	} = req.body;
 	const addition = {
 		name,
@@ -38,7 +39,13 @@ router.post('/add', authenticate, (req, res) => {
 		manufacturerId,
 		fragile,
 		thumbnail,
+		images
 	};
+	for (let propName in addition) {
+		if (typeof addition[propName] === "undefined") {
+			delete addition[propName]
+		}
+	}
 	db.addProduct(addition, userId, req.body.images)
 		.then(added => {
 			res.status(201).json(added);
@@ -80,6 +87,7 @@ router.put('/edit/:id', authenticate, (req, res) => {
 		value,
 		manufacturerId,
 		fragile,
+		images
 	} = req.body;
 	const changes = {
 		name,
@@ -91,7 +99,13 @@ router.put('/edit/:id', authenticate, (req, res) => {
 		value,
 		manufacturerId,
 		fragile,
+		images
 	};
+	for (let propName in changes) {
+		if (typeof changes[propName] === "undefined") {
+			delete changes[propName]
+		}
+	}
 	db.editProduct(id.toLowerCase(), userId, changes)
 		.then(updated => {
 			if (updated) {

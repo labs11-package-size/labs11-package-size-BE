@@ -64,24 +64,17 @@ function getProducts(userId) {
     });
 }
 
-async function addProduct(product, userId, images) {
+async function addProduct(product, userId) {
+  if (product.images) {
+    product.images = product.images.join()
+  }
   const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss");
-  if (images) {
     await db("products").insert({
       ...product,
       userId: userId,
       uuid: uuidTimestamp(),
       lastUpdated: currentDate,
-      images: images.join()
-    });
-  } else {
-    await db("products").insert({
-      ...product,
-      userId: userId,
-      uuid: uuidTimestamp(),
-      lastUpdated: currentDate
-    });
-  }
+    })
   return getProducts(userId);
 }
 

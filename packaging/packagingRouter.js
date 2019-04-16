@@ -37,17 +37,6 @@ router.post("/preview", authenticate, (req, res) => {
           "The length of items for the mailer search exceeds the limit of 29"
       });
     }
-    const idParser = itemId => {
-      if (itemId.length > 2) {
-        if (itemId.lastIndexOf("0") === itemId.length - 2) {
-          return itemId.slice(itemId.length - 1);
-        } else {
-          return itemId.slice(itemId.length - 2);
-        }
-      } else {
-        return itemId;
-      }
-    };
     uuidArray = req.body.products.map(uuid => {
       return uuid.toLowerCase();
     });
@@ -65,7 +54,7 @@ router.post("/preview", authenticate, (req, res) => {
         productsdata.forEach(productdata => {
           const duplicates = uuidCount[productdata.uuid];
           for (i = 0; i < duplicates; i++) {
-            const loopedIdentifier = productdata.identifier + 100 * i;
+            const loopedIdentifier = productdata.identifier + 10000 * i;
             itemsarray.push(
               `${loopedIdentifier}:0:${productdata.weight}:${
                 productdata.length
@@ -119,15 +108,15 @@ router.post("/preview", authenticate, (req, res) => {
                             itemObject.size_1
                           }x${itemObject.size_2}x${itemObject.size_3}`;
                         });
-                        return `bins=${binObject.id}:${binObject.weight_limit}:${
-                          binObject.size_1
-                        }x${binObject.size_2}x${
+                        return `bins=${binObject.id}:${
+                          binObject.weight_limit
+                        }:${binObject.size_1}x${binObject.size_2}x${
                           binObject.size_3
                         }&items=${itemsMapped.join()}&binId=${binObject.id}`;
                       };
                       const urlString = `https://scannarserver.herokuapp.com/api/packaging/getModel/${modelQueryBuilder()}`;
-                      binObject.modelURL = urlString
-                      console.log(binObject)
+                      binObject.modelURL = urlString;
+                      console.log(binObject);
                       return binObject;
                     });
                     res.status(200).json(parsedPreviewBoxes);
@@ -149,7 +138,7 @@ router.post("/preview", authenticate, (req, res) => {
       });
   } else {
     return res.status(400).json({
-      message: "Please provide an array of productIds within req.body.products"
+      message: "Please provide an array of product UUIDs within req.body.products"
     });
   }
 });
@@ -180,15 +169,7 @@ router.get("/getModel/:querystring", (req, res) => {
 
       parsedItems = [];
       itemsArray.forEach(item => {
-        if (item.length > 2) {
-          if (item.lastIndexOf("0") === item.length - 2) {
-            parsedItems.push(item.slice(item.length - 1));
-          } else {
-            parsedItems.push(item.slice(item.length - 2));
-          }
-        } else {
-          parsedItems.push(item);
-        }
+        parsedItems.push(idParser(item));
       });
       productsdb
         .getProductNames(parsedItems)
@@ -200,17 +181,6 @@ router.get("/getModel/:querystring", (req, res) => {
           });
           itemsArray.forEach(itemId => {
             let finalNamesObject = {};
-            const idParser = () => {
-              if (itemId.length > 2) {
-                if (itemId.lastIndexOf("0") === itemId.length - 2) {
-                  return itemId.slice(itemId.length - 1);
-                } else {
-                  return itemId.slice(itemId.length - 2);
-                }
-              } else {
-                return itemId;
-              }
-            };
             if (namesToIds[idParser()]) {
               finalNamesObject.id = itemId;
               finalNamesObject.name = namesToIds[idParser()];
@@ -235,7 +205,8 @@ router.get("/getModel/:querystring", (req, res) => {
             ${finalFunc()}
             };`;
           console.log(finalResult);
-          const crossPosition = post.data.indexOf("createLegend(container) {") + 25;
+          const crossPosition =
+            post.data.indexOf("createLegend(container) {") + 25;
           const dataWithFunc = [
             post.data.slice(0, crossPosition),
             finalResult,
@@ -280,7 +251,6 @@ router.delete("/delete/:uuid", authenticate, (req, res) => {
 
 router.post("/add", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  console.log("req.body for /packaging/add", req.body);
   db.addPackages(req.body, userId)
     .then(added => {
       res.status(201).json(added);
@@ -289,5 +259,43 @@ router.post("/add", authenticate, (req, res) => {
       res.status(code).json({ message });
     });
 });
+
+const idParser = itemId => {
+  if (itemId.length === 5) {
+    if (itemId.indexOf("0") === 1) {
+       let firstCut = itemId.slice(2)
+       if (firstCut[0] === "0") {
+         let secondCut = firstCut.slice(1)
+         if (secondCut[0] === "0") {
+         return secondCut.slice(1)
+         }
+         return secondCut
+       }
+       return firstCut
+    }
+       return itemId.slice(1)
+  }
+  if (itemId.length === 6) {
+          if (itemId.indexOf("0") === 1) {
+       let firstCut = itemId.slice(2)
+       if (firstCut[0] === "0") {
+         let secondCut = firstCut.slice(1)
+         if (secondCut[0] === "0") {
+         let thirdCut = secondCut.slice(1)
+         if (thirdCut[0] === "0") {
+           return thirdCut.slice(1)
+         }
+         return thirdCut
+         }
+         return secondCut
+       }
+      return firstCut
+    }
+    return itemId.slice(2)
+  }
+  else {
+    return itemId
+  }
+}
 
 module.exports = router;
