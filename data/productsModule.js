@@ -10,12 +10,15 @@ module.exports = {
   getAssets,
   addAsset,
   getProductName,
-  getDimensions
+  getDimensions,
+  getUUIDs,
+  getProductNames
 };
 
 function getProducts(userId) {
-  return db("products")
+  const list = db("products")
     .select(
+      "identifier",
       "name",
       "productDescription",
       "weight",
@@ -27,19 +30,51 @@ function getProducts(userId) {
       "fragile",
       "thumbnail",
       "uuid",
-      "lastUpdated"
+      "lastUpdated",
+      "images"
     )
-    .where({ userId });
+    .where({ userId })
+	.limit(20);
+
+  return db("products")
+    .select(
+      "identifier",
+      "name",
+      "productDescription",
+      "weight",
+      "value",
+      "length",
+      "width",
+      "height",
+      "manufacturerId",
+      "fragile",
+      "thumbnail",
+      "uuid",
+      "lastUpdated",
+      "images"
+    )
+    .where({ userId })
+
+    .offset(list.length)
+    .then(productsArray => {
+      return productsArray.map(productObject => {
+        productObject.images = productObject.images.split(",");
+        return productObject;
+      });
+    });
 }
 
 async function addProduct(product, userId) {
+  if (product.images) {
+    product.images = product.images.join()
+  }
   const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss");
-  await db("products").insert({
-    ...product,
-    userId: userId,
-    uuid: uuidTimestamp(),
-    lastUpdated: currentDate
-  });
+    await db("products").insert({
+      ...product,
+      userId: userId,
+      uuid: uuidTimestamp(),
+      lastUpdated: currentDate,
+    })
   return getProducts(userId);
 }
 
@@ -47,6 +82,12 @@ function getProductName(identifier) {
   return db("products")
     .where({ identifier })
     .first();
+}
+
+function getProductNames(array) {
+  return db("products")
+    .select("name", "identifier")
+    .whereIn("identifier", array);
 }
 
 async function deleteProduct(uuid, userId) {
@@ -58,12 +99,19 @@ async function deleteProduct(uuid, userId) {
   return null;
 }
 
-async function editProduct(uuid, userId, changes) {
+async function editProduct(uuid, userId, changes, images) {
   const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss");
-  const edited = await db("products")
-    .where({ uuid })
-    .update({ ...changes, userId, lastUpdated: currentDate });
-  if (edited) return getProducts(userId);
+  if (images) {
+    const edited = await db("products")
+      .where({ uuid })
+      .update({ ...changes, lastUpdated: currentDate, images: images.join() });
+    if (edited) return getProducts(userId);
+  } else {
+    const edited = await db("products")
+      .where({ uuid })
+      .update({ ...changes, lastUpdated: currentDate });
+    if (edited) return getProducts(userId);
+  }
   return null;
 }
 
@@ -101,4 +149,10 @@ function findById(table, identifier) {
   return db(`${table}`)
     .where({ identifier })
     .first();
+}
+
+function getUUIDs(eachItem) {
+  return db("products")
+    .select("identifier", "uuid")
+    .whereIn("identifier", eachItem);
 }

@@ -24,12 +24,14 @@ function getShipments(userId) {
       "dimensions",
       "status",
       "uuid",
-      "lastUpdated"
+      "lastUpdated",
+      "productUuids"
     )
     .where({ userId })
     .then(shipmentsArray => {
       return shipmentsArray.map(shipmentObject => {
         shipmentObject.productNames = shipmentObject.productNames.split(",");
+        shipmentObject.productUuids = shipmentObject.productUuids.split(",");
         return shipmentObject;
       });
     });
@@ -44,11 +46,23 @@ async function addShipment(shipment, userId) {
 }
 
 async function deleteShipment(uuid, userId) {
+  if (uuid.length > 50) {
+    const uuidArray = await uuid.split(',')
+    const deleted = await db("shipments")
+    .whereIn("uuid", uuidArray)
+    .andWhere({ userId })
+    .del();
+    if (deleted) return getShipments(userId)
+    return null
+  }
+  else {
   const deleted = await db("shipments")
     .where({ uuid })
+    .andWhere({ userId })
     .del();
   if (deleted) return getShipments(userId);
   return null;
+}
 }
 
 async function editShipment(uuid, userId, changes, productId) {

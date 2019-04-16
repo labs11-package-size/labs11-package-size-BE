@@ -16,84 +16,173 @@ function getPackages(userId) {
       "uuid",
       "dimensions",
       "productNames",
-      "lastUpdated"
+      "lastUpdated",
+      "productUuids"
     )
     .where({ userId })
     .then(found => {
       return found.map(pendingShipment => {
-        pendingShipment.productNames = pendingShipment.productNames.split(",");
+        pendingShipment.productNames = pendingShipment.productNames.split(", ");
+        pendingShipment.productUuids = pendingShipment.productUuids.split(",");
         return pendingShipment;
       });
     });
 }
 
-async function addPackages(request, userId) {
+function addPackages(request, userId) {
   if (Array.isArray(request)) {
-    await request.forEach(previewObject => addFunc(previewObject, userId));
-    return getPackages(userId)
+    return addFuncArray(request, userId);
   } else {
-    await addFunc(request, userId);
-    return getPackages(userId)
+    return addFunc(request, userId);
   }
+}
+
+function addFuncArray(binObjects, userId) {
+  console.log("addFuncArray")
+  let binObjectsArray = [];
+  const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
+  binObjects.forEach(binObject => {
+    const itemIds = binObject.items.map(item => {
+     return idParser(item.id);
+    });
+    console.log("itemIds", itemIds)
+    const itemCount = {};
+    itemIds.forEach(itemIdentifier => {
+      if (!itemCount[itemIdentifier]) {
+        itemCount[itemIdentifier] = 0;
+      }
+      itemCount[itemIdentifier]++;
+    });
+    db("products")
+      .select("identifier", "name", "uuid")
+      .whereIn("identifier", itemIds)
+      .then(namesObjects => {
+        const uuidsArray = [];
+        const namesArray = [];
+        namesObjects.forEach(nameObject => {
+          if (itemCount[nameObject.identifier] > 1) {
+            nameObject.name = `${nameObject.name} (x${
+              itemCount[nameObject.identifier]
+            })`;
+            for (let i = 1; i < itemCount[nameObject.identifier]; i++) {
+              uuidsArray.push(nameObject.uuid);
+            }
+          }
+          uuidsArray.push(nameObject.uuid);
+          namesArray.push(nameObject.name);
+        });
+        binObjectsArray.push({
+          productNames: namesArray.join(", "),
+          productUuids: uuidsArray.join(),
+          dimensions: binObject.size,
+          totalWeight: binObject.curr_weight,
+          uuid: uuidTimestamp(),
+          lastUpdated: currentDate,
+          modelURL: binObject.modelURL,
+          userId
+        });
+      });
+  });
+  return db("pendingShipments").insert(binObjectsArray).then(() => {return getPackages(userId)});
 }
 
 function addFunc(binObject, userId) {
   const itemIds = binObject.items.map(item => {
-    if (item.id.length > 2) {
-      if (item.id.lastIndexOf("0") === item.id.length - 2) {
-        return item.id.slice(item.id.length - 1);
-      } else {
-        return item.id.slice(item.id.length - 2);
-      }
-    } else {
-      return item.id;
+    item.id = idParser(item.id);
+  });
+  const itemCount = {};
+  itemIds.forEach(itemIdentifier => {
+    if (!itemCount[itemIdentifier]) {
+      itemCount[itemIdentifier] = 0;
     }
+    itemCount[itemIdentifier]++;
   });
   return db("products")
-    .select("name")
+    .select("identifier", "name", "uuid")
     .whereIn("identifier", itemIds)
     .then(namesObjects => {
-      const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
-      //   http://www.packit4me.com/api/call/preview?bins=0:100:10x8x4&items=12:0:9:3x10x4,
-      // 6:0:17:4x5x5,3:0:2:3x5x5&binId=0
-      const modelQueryBuilder = () => {
-        const itemsMapped = binObject.items.map(itemObject => {
-          return `${itemObject.id}:0:${itemObject.weight}:${
-            itemObject.size_1
-          }x${itemObject.size_2}x${itemObject.size_3}`;
-        });
-        return `bins=${binObject.id}:${binObject.weight_limit}:${
-          binObject.size_1
-        }x:${binObject.size_2}x:${
-          binObject.size_3
-        }&items=${itemsMapped.join()}`;
-      };
-      const urlString = `https://scannarserver.herokuapp.com/api/packaging/getModel/${modelQueryBuilder()}`;
+      const uuidsArray = [];
       const namesArray = [];
       namesObjects.forEach(nameObject => {
+        if (itemCount[nameObject.identifier] > 1) {
+          nameObject.name = `${nameObject.name} (x${
+            itemCount[nameObject.identifier]
+          })`;
+          for (let i = 1; i < itemCount[nameObject.identifier]; i++) {
+            uuidsArray.push(nameObject.uuid);
+          }
+        }
+        uuidsArray.push(nameObject.uuid);
         namesArray.push(nameObject.name);
       });
-      return db("pendingShipments").insert({
-        productNames: namesArray.join(),
-        modelURL: urlString,
-        dimensions: binObject.size,
-        totalWeight: binObject.curr_weight,
-        uuid: uuidTimestamp(),
-        lastUpdated: currentDate,
-        userId
-      });
+      const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
+      return db("pendingShipments")
+        .insert({
+          productNames: namesArray.join(", "),
+          productUuids: uuidsArray.join(),
+          dimensions: binObject.size,
+          totalWeight: binObject.curr_weight,
+          uuid: uuidTimestamp(),
+          lastUpdated: currentDate,
+          modelURL: binObject.modelURL,
+          userId
+        })
+        .then(() => getPackages(userId));
     });
 }
 
-function deletePackage(uuid, userId) {
-  return db("pendingShipments")
-    .where({ uuid })
-    .andWhere({ userId })
-    .del()
-    .then(deleted => {
-      if (deleted) {
-        return getPackages(userId);
-      }
-      return null;
-    });
+async function deletePackage(uuid, userId) {
+  if (uuid.length > 50) {
+    const uuidArray = await uuid.split(",");
+    const deleted = await db("pendingShipments")
+      .whereIn("uuid", uuidArray)
+      .andWhere({ userId })
+      .del();
+    if (deleted) return getPackages(userId);
+    return null;
+  } else {
+    const deleted = await db("pendingShipments")
+      .where({ uuid })
+      .andWhere({ userId })
+      .del();
+    if (deleted) return getPackages(userId);
+    return null;
+  }
 }
+
+const idParser = itemId => {
+  if (itemId.length === 5) {
+    if (itemId.indexOf("0") === 1) {
+      let firstCut = itemId.slice(2);
+      if (firstCut[0] === "0") {
+        let secondCut = firstCut.slice(1);
+        if (secondCut[0] === "0") {
+          return secondCut.slice(1);
+        }
+        return secondCut;
+      }
+      return firstCut;
+    }
+    return itemId.slice(1);
+  }
+  if (itemId.length === 6) {
+    if (itemId.indexOf("0") === 1) {
+      let firstCut = itemId.slice(2);
+      if (firstCut[0] === "0") {
+        let secondCut = firstCut.slice(1);
+        if (secondCut[0] === "0") {
+          let thirdCut = secondCut.slice(1);
+          if (thirdCut[0] === "0") {
+            return thirdCut.slice(1);
+          }
+          return thirdCut;
+        }
+        return secondCut;
+      }
+      return firstCut;
+    }
+    return itemId.slice(2);
+  } else {
+    return itemId;
+  }
+};

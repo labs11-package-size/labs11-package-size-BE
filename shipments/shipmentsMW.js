@@ -56,6 +56,7 @@ function uspsTracking(req, res, next) {
             dimensions: found.dimensions,
             totalWeight: found.totalWeight,
             productNames: found.productNames,
+            productUuids: found.productUuids,
             userId
           };
           next();
