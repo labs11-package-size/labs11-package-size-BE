@@ -12,7 +12,8 @@ module.exports = {
   getProductName,
   getDimensions,
   getUUIDs,
-  getProductNames
+  getProductNames,
+  getDetail
 };
 
 function getProducts(userId) {
@@ -34,7 +35,7 @@ function getProducts(userId) {
       "images"
     )
     .where({ userId })
-	.limit(20);
+    .limit(20);
 
   return db("products")
     .select(
@@ -66,15 +67,15 @@ function getProducts(userId) {
 
 async function addProduct(product, userId) {
   if (product.images) {
-    product.images = product.images.join()
+    product.images = product.images.join();
   }
   const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss");
-    await db("products").insert({
-      ...product,
-      userId: userId,
-      uuid: uuidTimestamp(),
-      lastUpdated: currentDate,
-    })
+  await db("products").insert({
+    ...product,
+    userId: userId,
+    uuid: uuidTimestamp(),
+    lastUpdated: currentDate
+  });
   return getProducts(userId);
 }
 
@@ -155,4 +156,48 @@ function getUUIDs(eachItem) {
   return db("products")
     .select("identifier", "uuid")
     .whereIn("identifier", eachItem);
+}
+
+function getDetail(uuid, userId) {
+  console.log("getdetail", uuid);
+  return db("products")
+    .select(
+      "identifier",
+      "name",
+      "productDescription",
+      "weight",
+      "value",
+      "length",
+      "width",
+      "height",
+      "manufacturerId",
+      "fragile",
+      "thumbnail",
+      "uuid",
+      "lastUpdated",
+      "images"
+    )
+    .where({ userId })
+    .andWhere({ uuid })
+    .first()
+    .then(foundProduct => {
+      return db("shipments")
+        .select(
+          "dateShipped",
+          "shippedTo",
+          "dateArrived",
+          "trackingNumber",
+          "status",
+          "carrierName"
+        )
+        .where("productUuids", "like", `%${uuid}%`)
+        .andWhere({ userId })
+        .then(foundShipments => {
+          foundProduct.shipments = foundShipments;
+          return foundProduct;
+        })
+    })
+    .catch(() => {
+      return null;
+    });
 }

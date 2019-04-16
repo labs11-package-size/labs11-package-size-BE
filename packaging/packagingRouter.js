@@ -246,6 +246,7 @@ router.delete("/delete/:uuid", authenticate, (req, res) => {
 });
 
 router.post("/add", authenticate, (req, res) => {
+  console.log("packaging add", req.body)
   const userId = req.decoded.subject;
   db.addPackages(req.body, userId)
     .then(added => {
