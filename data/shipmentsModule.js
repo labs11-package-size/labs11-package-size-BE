@@ -5,17 +5,21 @@ const moment = require("moment");
 
 module.exports = {
   getShipments,
+  getAllShipments,
   addShipment,
   deleteShipment,
-  editShipment
+  editShipment,
 };
 
 function getShipments(userId) {
   return db("shipments")
     .select(
+      "tracked",
+      "modelURL",
       "dateShipped",
       "dateArrived",
       "productNames",
+      "productUuids",
       "totalWeight",
       "shippedTo",
       "trackingNumber",
@@ -25,7 +29,6 @@ function getShipments(userId) {
       "status",
       "uuid",
       "lastUpdated",
-      "productUuids"
     )
     .where({ userId })
     .then(shipmentsArray => {
@@ -35,6 +38,56 @@ function getShipments(userId) {
         return shipmentObject;
       });
     });
+}
+
+function getAllShipments(userId) {
+  return db("pendingShipments")
+  .select(
+    "tracked",
+    "totalWeight",
+    "modelURL",
+    "dimensions",
+    "productUuids",
+    "productNames",
+    "uuid",
+    "lastUpdated"
+  )
+  .where({ userId })
+  .then(foundPackages => {
+    const parsedPackages = foundPackages.map(packageObject => {
+      packageObject.productNames = packageObject.productNames.split(",");
+      packageObject.productUuids = packageObject.productUuids.split(",");
+      return packageObject
+    })
+
+  return db("shipments")
+    .select(
+      "tracked",
+      "modelURL",
+      "dateShipped",
+      "dateArrived",
+      "productNames",
+      "productUuids",
+      "totalWeight",
+      "shippedTo",
+      "trackingNumber",
+      "carrierName",
+      "shippingType",
+      "dimensions",
+      "status",
+      "uuid",
+      "lastUpdated",
+    )
+    .where({ userId })
+    .then(shipmentsArray => {
+      const parsedShipments = shipmentsArray.map(shipmentObject => {
+        shipmentObject.productNames = shipmentObject.productNames.split(",");
+        shipmentObject.productUuids = shipmentObject.productUuids.split(",");
+        return shipmentObject;
+      });
+      return parsedPackages.concat(parsedShipments)
+    });
+  })
 }
 
 async function addShipment(shipment, userId) {

@@ -159,7 +159,6 @@ function getUUIDs(eachItem) {
 }
 
 function getDetail(uuid, userId) {
-  console.log("getdetail", uuid);
   return db("products")
     .select(
       "identifier",

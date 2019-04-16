@@ -11,7 +11,7 @@ const fakerShipments = (namesObject, uuidObject) => {
   for (u = 0; u <= 2; u++) {
     for (p = 1; p <= 23; p++) {
       productsArray.push({
-        identifier: (p + u * 23),
+        tracked: true,
         dateShipped: moment(faker.date.past()).format("YYYY-MM-DD"),
         dateArrived: moment(faker.date.past()).format("YYYY-MM-DD"),
         shippedTo: `${faker.address.city()}, ${faker.address.stateAbbr()} ${faker.address.zipCode()}`,

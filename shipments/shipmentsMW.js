@@ -15,7 +15,7 @@ function uspsTracking(req, res, next) {
   if (!uuid) {
     return res.status(400).json({
       message:
-        "Invalid Request, please include a uuid in the url parameter"
+        "Invalid Request, please include a uuid of a package object in the url parameter"
     });
   }
   const packageUUID = uuid.toLowerCase()
@@ -46,6 +46,7 @@ function uspsTracking(req, res, next) {
             data.activities[data.activities.length - 1].timestamp
           ).format("YYYY-MM-DD");
           req.trackingObject = {
+            tracked: true,
             lastUpdated: currentDate,
             dateShipped: parsedDate,
             shippedTo: data.destination,
@@ -57,6 +58,7 @@ function uspsTracking(req, res, next) {
             totalWeight: found.totalWeight,
             productNames: found.productNames,
             productUuids: found.productUuids,
+            modelURL: found.modelURL,
             userId
           };
           next();

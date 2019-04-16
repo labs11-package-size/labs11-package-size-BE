@@ -26,6 +26,19 @@ router.get("/", authenticate, (req, res) => {
     });
 });
 
+
+router.get("/all", authenticate, (req, res) => {
+  const userId = req.decoded.subject;
+  db.getAllShipments(userId)
+    .then(shipments => {
+      res.status(200).json(shipments);
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
+});
+
+
 router.delete("/delete/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
   const { uuid } = req.params;

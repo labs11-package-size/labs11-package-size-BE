@@ -118,6 +118,7 @@ function addFunc(binObject, userId) {
       const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
       return db("pendingShipments")
         .insert({
+          tracked: 0,
           productNames: namesArray.join(", "),
           productUuids: uuidsArray.join(),
           dimensions: binObject.size,
