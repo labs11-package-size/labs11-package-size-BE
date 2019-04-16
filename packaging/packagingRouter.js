@@ -166,7 +166,6 @@ router.get("/getModel/:querystring", (req, res) => {
         let nextColon = cutString.indexOf(":");
         itemsArray.push(cutString.slice(0, nextColon));
       }
-
       parsedItems = [];
       itemsArray.forEach(item => {
         parsedItems.push(idParser(item));
@@ -181,13 +180,12 @@ router.get("/getModel/:querystring", (req, res) => {
           });
           itemsArray.forEach(itemId => {
             let finalNamesObject = {};
-            if (namesToIds[idParser()]) {
+            if (namesToIds[idParser(itemId)]) {
               finalNamesObject.id = itemId;
-              finalNamesObject.name = namesToIds[idParser()];
+              finalNamesObject.name = namesToIds[idParser(itemId)];
               finalNamesArray.push(finalNamesObject);
             }
           });
-          console.log("finalNamesArray", finalNamesArray);
           const finalFunc = () => {
             const funcArray = [];
             for (let i = 0; i < finalNamesArray.length; i++) {
@@ -201,10 +199,8 @@ router.get("/getModel/:querystring", (req, res) => {
           const finalResult = `function parseNames(key) {
             let idOnly = key.slice(0, key.indexOf(":") - 1)
             let itemSize = key.slice(key.indexOf(":") - 1)
-            console.log(idOnly)
             ${finalFunc()}
             };`;
-          console.log(finalResult);
           const crossPosition =
             post.data.indexOf("createLegend(container) {") + 25;
           const dataWithFunc = [
