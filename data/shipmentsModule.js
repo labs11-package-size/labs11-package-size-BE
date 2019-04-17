@@ -8,6 +8,7 @@ module.exports = {
   getAllShipments,
   addShipment,
   deleteShipment,
+  deleteShipmentWeb,
   editShipment,
 };
 
@@ -118,6 +119,26 @@ async function deleteShipment(uuid, userId) {
     .andWhere({ userId })
     .del();
   if (deleted) return getShipments(userId);
+  return null;
+}
+}
+
+async function deleteShipmentWeb(uuid, userId) {
+  if (uuid.length > 50) {
+    const uuidArray = await uuid.split(',')
+    const deleted = await db("shipments")
+    .whereIn("uuid", uuidArray)
+    .andWhere({ userId })
+    .del();
+    if (deleted) return getAllShipments(userId)
+    return null
+  }
+  else {
+  const deleted = await db("shipments")
+    .where({ uuid })
+    .andWhere({ userId })
+    .del();
+  if (deleted) return getAllShipments(userId);
   return null;
 }
 }

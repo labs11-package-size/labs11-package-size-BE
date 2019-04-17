@@ -1,10 +1,12 @@
 const db = require("../data/dbConfig.js");
 const moment = require("moment");
 const uuidTimestamp = require("uuid/v1");
+const dbshipments = require("../shipmentsModule")
 
 module.exports = {
   getPackages,
   deletePackage,
+  deletePackageWeb,
   addPackages
 };
 
@@ -72,7 +74,7 @@ function addFuncArray(binObjects, userId) {
           namesArray.push(nameObject.name);
         });
         binObjectsArray.push({
-          tracked: 0,
+          tracked: false,
           productNames: namesArray.join(", "),
           productUuids: uuidsArray.join(),
           dimensions: binObject.size,
@@ -119,7 +121,7 @@ function addFunc(binObject, userId) {
       const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
       return db("pendingShipments")
         .insert({
-          tracked: 0,
+          tracked: false,
           productNames: namesArray.join(", "),
           productUuids: uuidsArray.join(),
           dimensions: binObject.size,
@@ -148,6 +150,25 @@ async function deletePackage(uuid, userId) {
       .andWhere({ userId })
       .del();
     if (deleted) return getPackages(userId);
+    return null;
+  }
+}
+
+async function deletePackageWeb(uuid, userId) {
+  if (uuid.length > 50) {
+    const uuidArray = await uuid.split(",");
+    const deleted = await db("pendingShipments")
+      .whereIn("uuid", uuidArray)
+      .andWhere({ userId })
+      .del();
+    if (deleted) return dbshipments.getAllShipments(userId);
+    return null;
+  } else {
+    const deleted = await db("pendingShipments")
+      .where({ uuid })
+      .andWhere({ userId })
+      .del();
+    if (deleted) return dbshipments.getAllShipments(userId);
     return null;
   }
 }

@@ -245,6 +245,24 @@ router.delete("/delete/:uuid", authenticate, (req, res) => {
     });
 });
 
+router.delete("/deleteweb/:uuid", authenticate, (req, res) => {
+  const { uuid } = req.params;
+  const userId = req.decoded.subject;
+  db.deletePackageWeb(uuid.toLowerCase(), userId)
+    .then(deleted => {
+      if (deleted) {
+        res.status(200).json(deleted);
+      } else {
+        res.status(404).json({
+          message: "No package was found matching the UUID given in the URL"
+        });
+      }
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
+})
+
 router.post("/add", authenticate, (req, res) => {
   console.log("packaging add", req.body)
   const userId = req.decoded.subject;
