@@ -72,6 +72,7 @@ function addFuncArray(binObjects, userId) {
           namesArray.push(nameObject.name);
         });
         binObjectsArray.push({
+          tracked: 0,
           productNames: namesArray.join(", "),
           productUuids: uuidsArray.join(),
           dimensions: binObject.size,
