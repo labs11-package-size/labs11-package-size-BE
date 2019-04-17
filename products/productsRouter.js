@@ -54,7 +54,7 @@ router.post("/add", authenticate, (req, res) => {
     images
   };
   for (let propName in addition) {
-    if (typeof addition[propName] === "undefined") {
+    if (typeof addition[propName] === "undefined" || addition[propName] === null) {
       delete addition[propName];
     }
   }
@@ -114,7 +114,7 @@ router.put("/edit/:id", authenticate, (req, res) => {
     images
   };
   for (let propName in changes) {
-    if (typeof changes[propName] === "undefined") {
+    if (typeof changes[propName] === "undefined" || changes[propName] === null) {
       delete changes[propName];
     }
   }
