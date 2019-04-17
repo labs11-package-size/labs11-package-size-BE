@@ -7,7 +7,8 @@ module.exports = {
   getPackages,
   deletePackage,
   deletePackageWeb,
-  addPackages
+  addPackages,
+  addPackagesWeb
 };
 
 function getPackages(userId) {
