@@ -64,7 +64,7 @@ function getProductsLimited(userId, limitQuery, pageQuery) {
     )
     .where({ userId })
     .limit(limitQuery)
-    .offset((pageQuery-1) * limitQuery)
+    .offset((pageQuery - 1) * limitQuery)
     .then(productsArray => {
       return productsArray.map(productObject => {
         productObject.images = productObject.images.split(",");
@@ -72,8 +72,6 @@ function getProductsLimited(userId, limitQuery, pageQuery) {
       });
     });
 }
-
-
 
 async function addProduct(product, userId) {
   if (product.images) {
@@ -110,19 +108,16 @@ async function deleteProduct(uuid, userId) {
   return null;
 }
 
-async function editProduct(uuid, userId, changes, images) {
+async function editProduct(uuid, userId, changes) {
+  console.log("edit changes", changes)
   const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss");
-  if (images) {
-    const edited = await db("products")
-      .where({ uuid })
-      .update({ ...changes, lastUpdated: currentDate, images: images.join() });
-    if (edited) return getProducts(userId);
-  } else {
-    const edited = await db("products")
-      .where({ uuid })
-      .update({ ...changes, lastUpdated: currentDate });
-    if (edited) return getProducts(userId);
+  if (changes.images) {
+    changes.images = changes.images.join();
   }
+  const edited = await db("products")
+    .where({ uuid })
+    .update({ ...changes, lastUpdated: currentDate });
+  if (edited) return getProducts(userId);
   return null;
 }
 

@@ -2,20 +2,20 @@ const router = require("express").Router();
 const db = require("../data/productsModule.js");
 const { authenticate } = require("../api/globalMW.js");
 
-router.get('/', authenticate, (req, res) => {
-	const userId = req.decoded.subject;
-	db.getProducts(userId)
-		.then(found => {
-			res.status(200).json(found);
-		})
-		.catch(({ code, message }) => {
-			res.status(code).json({ message });
-		});
+router.get("/", authenticate, (req, res) => {
+  const userId = req.decoded.subject;
+  db.getProducts(userId)
+    .then(found => {
+      res.status(200).json(found);
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
 });
 
 router.get("/option", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  const { limit, page } = req.query
+  const { limit, page } = req.query;
   db.getProductsLimited(userId, limit, page)
     .then(found => {
       res.status(200).json(found);
@@ -53,10 +53,28 @@ router.post("/add", authenticate, (req, res) => {
     thumbnail,
     images
   };
+  if (!Array.isArray(images)) {
+    delete addition[images];
+  }
   for (let propName in addition) {
-    if (typeof addition[propName] === "undefined" || addition[propName] === null) {
+    if (
+      typeof addition[propName] === "undefined" ||
+      addition[propName] === null
+    ) {
       delete addition[propName];
     }
+  }
+  if (!name || typeof name !== "string") {
+    return res.status(400).json({
+      message:
+        "In the request body, a name property with a string value is required"
+    });
+  }
+  if (images && (Array.isArray(images) === false)) {
+    return res.status(400).json({
+      message:
+        "The images property sent to the server must be an array"
+    });
   }
   db.addProduct(addition, userId, req.body.images)
     .then(added => {
@@ -114,11 +132,25 @@ router.put("/edit/:id", authenticate, (req, res) => {
     images
   };
   for (let propName in changes) {
-    if (typeof changes[propName] === "undefined" || changes[propName] === null) {
+    if (
+      typeof changes[propName] === "undefined" ||
+      changes[propName] === null
+    ) {
       delete changes[propName];
     }
   }
-  console.log("changes object from products edit", console.log(changes))
+  if (!name || typeof name !== "string") {
+    return res.status(400).json({
+      message:
+        "In the request body, a name property with a string value is required"
+    });
+  }
+  if (images && (Array.isArray(images) === false)) {
+    return res.status(400).json({
+      message:
+        "The images property sent to the server must be an array"
+    });
+  }
   db.editProduct(id.toLowerCase(), userId, changes)
     .then(updated => {
       if (updated) {
@@ -182,9 +214,12 @@ router.get("/getdetail/:uuid", authenticate, (req, res) => {
   db.getDetail(uuid.toLowerCase(), userId)
     .then(found => {
       if (found) {
-      res.status(201).json(found)}
-      else {
-        res.status(404).json({ message: "Unable to find any product matching the identifier given in the URL"})
+        res.status(201).json(found);
+      } else {
+        res.status(404).json({
+          message:
+            "Unable to find any product matching the identifier given in the URL"
+        });
       }
     })
     .catch(({ code, message }) => {
