@@ -118,6 +118,7 @@ router.put("/edit/:id", authenticate, (req, res) => {
       delete changes[propName];
     }
   }
+  console.log("changes object from products edit", console.log(changes))
   db.editProduct(id.toLowerCase(), userId, changes)
     .then(updated => {
       if (updated) {
