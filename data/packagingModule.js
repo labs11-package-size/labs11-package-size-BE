@@ -1,7 +1,7 @@
 const db = require("../data/dbConfig.js");
 const moment = require("moment");
 const uuidTimestamp = require("uuid/v1");
-const dbshipments = require("../shipmentsModule")
+const dbshipments = require("./shipmentsModule")
 
 module.exports = {
   getPackages,
