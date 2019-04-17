@@ -4,6 +4,7 @@ const moment = require("moment");
 
 module.exports = {
   getProducts,
+  getProductsLimited,
   addProduct,
   deleteProduct,
   editProduct,
@@ -17,26 +18,6 @@ module.exports = {
 };
 
 function getProducts(userId) {
-  const list = db("products")
-    .select(
-      "identifier",
-      "name",
-      "productDescription",
-      "weight",
-      "value",
-      "length",
-      "width",
-      "height",
-      "manufacturerId",
-      "fragile",
-      "thumbnail",
-      "uuid",
-      "lastUpdated",
-      "images"
-    )
-    .where({ userId })
-    .limit(20);
-
   return db("products")
     .select(
       "identifier",
@@ -55,8 +36,6 @@ function getProducts(userId) {
       "images"
     )
     .where({ userId })
-
-    .offset(list.length)
     .then(productsArray => {
       return productsArray.map(productObject => {
         productObject.images = productObject.images.split(",");
@@ -64,6 +43,37 @@ function getProducts(userId) {
       });
     });
 }
+
+function getProductsLimited(userId, limitQuery, pageQuery) {
+  return db("products")
+    .select(
+      "identifier",
+      "name",
+      "productDescription",
+      "weight",
+      "value",
+      "length",
+      "width",
+      "height",
+      "manufacturerId",
+      "fragile",
+      "thumbnail",
+      "uuid",
+      "lastUpdated",
+      "images"
+    )
+    .where({ userId })
+    .limit(limitQuery)
+    .offset((pageQuery-1) * limitQuery)
+    .then(productsArray => {
+      return productsArray.map(productObject => {
+        productObject.images = productObject.images.split(",");
+        return productObject;
+      });
+    });
+}
+
+
 
 async function addProduct(product, userId) {
   if (product.images) {
@@ -194,7 +204,7 @@ function getDetail(uuid, userId) {
         .then(foundShipments => {
           foundProduct.shipments = foundShipments;
           return foundProduct;
-        })
+        });
     })
     .catch(() => {
       return null;

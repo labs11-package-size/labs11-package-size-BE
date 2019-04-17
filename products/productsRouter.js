@@ -2,9 +2,21 @@ const router = require("express").Router();
 const db = require("../data/productsModule.js");
 const { authenticate } = require("../api/globalMW.js");
 
-router.get("/", authenticate, (req, res) => {
+router.get('/', authenticate, (req, res) => {
+	const userId = req.decoded.subject;
+	db.getProducts(userId)
+		.then(found => {
+			res.status(200).json(found);
+		})
+		.catch(({ code, message }) => {
+			res.status(code).json({ message });
+		});
+});
+
+router.get("/option", authenticate, (req, res) => {
   const userId = req.decoded.subject;
-  db.getProducts(userId)
+  const { limit, page } = req.query
+  db.getProductsLimited(userId, limit, page)
     .then(found => {
       res.status(200).json(found);
     })

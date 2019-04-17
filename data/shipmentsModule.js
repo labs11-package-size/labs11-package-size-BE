@@ -90,11 +90,15 @@ function getAllShipments(userId) {
   })
 }
 
-async function addShipment(shipment, userId) {
+async function addShipment(shipment, uuid, userId) {
   await db("shipments").insert({
     ...shipment,
     uuid: uuidTimestamp()
   });
+  await db("pendingShipments")
+  .where({ uuid })
+  .andWhere({ userId })
+  .del()
   return getShipments(userId);
 }
 

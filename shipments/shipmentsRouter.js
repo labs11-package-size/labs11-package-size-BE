@@ -4,9 +4,10 @@ const { authenticate } = require("../api/globalMW.js");
 const { uspsTracking } = require("./shipmentsMW.js");
 
 router.post("/add/:uuid", authenticate, uspsTracking, (req, res) => {
+  const { uuid } = req.params
   const trackingdata = req.trackingObject;
   const userId = req.decoded.subject;
-  db.addShipment(trackingdata, userId)
+  db.addShipment(trackingdata, uuid.toLowerCase(), userId)
     .then(added => {
       res.status(201).json(added);
     })
