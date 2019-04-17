@@ -39,6 +39,16 @@ function addPackages(request, userId) {
   }
 }
 
+function addPackagesWeb(request, userId) {
+  if (Array.isArray(request)) {
+    return addFuncArrayWeb(request, userId);
+  } else {
+    return addFuncWeb(request, userId);
+  }
+}
+
+
+
 function addFuncArray(binObjects, userId) {
   console.log("addFuncArray")
   let binObjectsArray = [];
@@ -89,6 +99,56 @@ function addFuncArray(binObjects, userId) {
   return db("pendingShipments").insert(binObjectsArray).then(() => {return getPackages(userId)});
 }
 
+function addFuncArrayWeb(binObjects, userId) {
+  console.log("addFuncArray")
+  let binObjectsArray = [];
+  const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
+  binObjects.forEach(binObject => {
+    const itemIds = binObject.items.map(item => {
+     return idParser(item.id);
+    });
+    console.log("itemIds", itemIds)
+    const itemCount = {};
+    itemIds.forEach(itemIdentifier => {
+      if (!itemCount[itemIdentifier]) {
+        itemCount[itemIdentifier] = 0;
+      }
+      itemCount[itemIdentifier]++;
+    });
+    db("products")
+      .select("identifier", "name", "uuid")
+      .whereIn("identifier", itemIds)
+      .then(namesObjects => {
+        const uuidsArray = [];
+        const namesArray = [];
+        namesObjects.forEach(nameObject => {
+          if (itemCount[nameObject.identifier] > 1) {
+            nameObject.name = `${nameObject.name} (x${
+              itemCount[nameObject.identifier]
+            })`;
+            for (let i = 1; i < itemCount[nameObject.identifier]; i++) {
+              uuidsArray.push(nameObject.uuid);
+            }
+          }
+          uuidsArray.push(nameObject.uuid);
+          namesArray.push(nameObject.name);
+        });
+        binObjectsArray.push({
+          tracked: false,
+          productNames: namesArray.join(", "),
+          productUuids: uuidsArray.join(),
+          dimensions: binObject.size,
+          totalWeight: binObject.curr_weight,
+          uuid: uuidTimestamp(),
+          lastUpdated: currentDate,
+          modelURL: binObject.modelURL,
+          userId
+        });
+      });
+  });
+  return db("pendingShipments").insert(binObjectsArray).then(() => {return dbshipments.getAllShipments(userId)});
+}
+
 function addFunc(binObject, userId) {
   const itemIds = binObject.items.map(item => {
     item.id = idParser(item.id);
@@ -132,6 +192,52 @@ function addFunc(binObject, userId) {
           userId
         })
         .then(() => getPackages(userId));
+    });
+}
+
+function addFuncWeb(binObject, userId) {
+  const itemIds = binObject.items.map(item => {
+    item.id = idParser(item.id);
+  });
+  const itemCount = {};
+  itemIds.forEach(itemIdentifier => {
+    if (!itemCount[itemIdentifier]) {
+      itemCount[itemIdentifier] = 0;
+    }
+    itemCount[itemIdentifier]++;
+  });
+  return db("products")
+    .select("identifier", "name", "uuid")
+    .whereIn("identifier", itemIds)
+    .then(namesObjects => {
+      const uuidsArray = [];
+      const namesArray = [];
+      namesObjects.forEach(nameObject => {
+        if (itemCount[nameObject.identifier] > 1) {
+          nameObject.name = `${nameObject.name} (x${
+            itemCount[nameObject.identifier]
+          })`;
+          for (let i = 1; i < itemCount[nameObject.identifier]; i++) {
+            uuidsArray.push(nameObject.uuid);
+          }
+        }
+        uuidsArray.push(nameObject.uuid);
+        namesArray.push(nameObject.name);
+      });
+      const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
+      return db("pendingShipments")
+        .insert({
+          tracked: false,
+          productNames: namesArray.join(", "),
+          productUuids: uuidsArray.join(),
+          dimensions: binObject.size,
+          totalWeight: binObject.curr_weight,
+          uuid: uuidTimestamp(),
+          lastUpdated: currentDate,
+          modelURL: binObject.modelURL,
+          userId
+        })
+        .then(() => dbshipments.getAllShipments(userId));
     });
 }
 

@@ -275,6 +275,18 @@ router.post("/add", authenticate, (req, res) => {
     });
 });
 
+router.post("/addweb", authenticate, (req, res) => {
+  console.log("packaging add", req.body)
+  const userId = req.decoded.subject;
+  db.addPackagesWeb(req.body, userId)
+    .then(added => {
+      res.status(201).json(added);
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
+});
+
 const idParser = itemId => {
   if (itemId.length === 5) {
     if (itemId.indexOf("0") === 1) {

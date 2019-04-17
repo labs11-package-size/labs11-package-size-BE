@@ -36,6 +36,7 @@ function getProducts(userId) {
       "images"
     )
     .where({ userId })
+    .orderBy("lastUpdated", "desc")
     .then(productsArray => {
       return productsArray.map(productObject => {
         productObject.images = productObject.images.split(",");
@@ -65,6 +66,7 @@ function getProductsLimited(userId, limitQuery, pageQuery) {
     .where({ userId })
     .limit(limitQuery)
     .offset((pageQuery - 1) * limitQuery)
+    .orderBy("lastUpdated", "desc")
     .then(productsArray => {
       return productsArray.map(productObject => {
         productObject.images = productObject.images.split(",");
