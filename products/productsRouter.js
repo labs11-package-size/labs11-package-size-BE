@@ -209,9 +209,10 @@ router.post("/assets/add/:id", authenticate, (req, res) => {
 });
 
 router.get("/getdetail/:uuid", authenticate, (req, res) => {
+  const { page } = req.query;
   const userId = req.decoded.subject;
   const { uuid } = req.params;
-  db.getDetail(uuid.toLowerCase(), userId)
+  db.getDetail(uuid.toLowerCase(), userId, page)
     .then(found => {
       if (found) {
         res.status(201).json(found);

@@ -7,6 +7,7 @@ module.exports = {
   getShipments,
   getAllShipments,
   addShipment,
+  addShipmentWeb,
   deleteShipment,
   deleteShipmentWeb,
   editShipment,
@@ -101,6 +102,18 @@ async function addShipment(shipment, uuid, userId) {
   .andWhere({ userId })
   .del()
   return getShipments(userId);
+}
+
+async function addShipmentWeb(shipment, uuid, userId) {
+  await db("shipments").insert({
+    ...shipment,
+    uuid: uuidTimestamp()
+  });
+  await db("pendingShipments")
+  .where({ uuid })
+  .andWhere({ userId })
+  .del()
+  return getAllShipments(userId);
 }
 
 async function deleteShipment(uuid, userId) {

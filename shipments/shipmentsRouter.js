@@ -16,6 +16,19 @@ router.post("/add/:uuid", authenticate, uspsTracking, (req, res) => {
     });
 });
 
+router.post("/addweb/:uuid", authenticate, uspsTracking, (req, res) => {
+  const { uuid } = req.params
+  const trackingdata = req.trackingObject;
+  const userId = req.decoded.subject;
+  db.addShipmentWeb(trackingdata, uuid.toLowerCase(), userId)
+    .then(added => {
+      res.status(201).json(added);
+    })
+    .catch(({ code, message }) => {
+      res.status(code).json({ message });
+    });
+});
+
 router.get("/", authenticate, (req, res) => {
   const userId = req.decoded.subject;
   db.getShipments(userId)

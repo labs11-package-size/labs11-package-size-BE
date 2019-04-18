@@ -165,7 +165,7 @@ function getUUIDs(eachItem) {
     .whereIn("identifier", eachItem);
 }
 
-function getDetail(uuid, userId) {
+function getDetail(uuid, userId, pageQuery) {
   return db("products")
     .select(
       "identifier",
@@ -189,6 +189,7 @@ function getDetail(uuid, userId) {
     .then(foundProduct => {
       return db("shipments")
         .select(
+          "lastUpdated",
           "dateShipped",
           "shippedTo",
           "dateArrived",
@@ -198,6 +199,9 @@ function getDetail(uuid, userId) {
         )
         .where("productUuids", "like", `%${uuid}%`)
         .andWhere({ userId })
+        .orderBy("lastUpdated", "desc")
+        .limit(3)
+    .offset((pageQuery - 1) * 3)
         .then(foundShipments => {
           foundProduct.shipments = foundShipments;
           return foundProduct;
