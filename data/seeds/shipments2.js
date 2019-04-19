@@ -8,7 +8,7 @@ const db = require("../dbConfig.js");
 const fakerShipments = (namesObject, uuidObject) => {
   const currenttime = moment().format("YYYY-MM-DD hh:mm:ss")
   let productsArray = [];
-  for (u = 3; u <= 4; u++) {
+  for (u = 3; u <= 5; u++) {
     for (p = 1; p <= 23; p++) {
       productsArray.push({
         tracked: true,

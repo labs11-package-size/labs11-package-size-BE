@@ -1,6 +1,6 @@
 const renderRecords = () => {
   const renderedRecords = [];
-  for (i = 0; i < 5; i++) {
+  for (i = 0; i <= 5; i++) {
     renderedRecords.push(
       { productId: 1 + i * 23, pendingShipmentsId: 1 + i * 23 },
       { productId: 2 + i * 23, pendingShipmentsId: 1 + i * 23 },
