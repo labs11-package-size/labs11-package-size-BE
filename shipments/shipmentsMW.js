@@ -37,7 +37,7 @@ function uspsTracking(req, res, next) {
     .then(found => {
       if (found) {
         usps.requestData({ trackingNumber }, (err, data) => {
-          if (err || typeof data.timestamp === "undefined") {
+          if (err || typeof data.destination === "undefined") {
             return res
               .status(400)
               .json({ message: "The tracking number supplied is not valid" });
