@@ -4,7 +4,8 @@ const db = require("../data/dbConfig.js");
 const moment = require("moment");
 
 module.exports = {
-  uspsTracking
+  uspsTracking,
+  trackOne
 };
 
 // trackingNumber's value needs to be string format
@@ -72,4 +73,54 @@ function uspsTracking(req, res, next) {
     .catch(({ code, message }) => {
       res.status(code).json({ message });
     });
+}
+
+function trackOne(req, res, next) {
+  const userId = req.decoded.subject;
+  const { uuid }  = req.params
+  if (!uuid) {
+    return res.status(400).json({
+      message:
+        "Invalid Request, please include a uuid of a package object in the url parameter"
+    });
+  }
+  const packageUUID = uuid.toLowerCase()
+  const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
+  return db("shipments")
+  .select(
+    "tracked",
+    "modelURL",
+    "dateShipped",
+    "dateArrived",
+    "productNames",
+    "productUuids",
+    "totalWeight",
+    "shippedTo",
+    "trackingNumber",
+    "carrierName",
+    "shippingType",
+    "dimensions",
+    "status",
+    "uuid",
+    "lastUpdated",
+  )
+  .where({uuid})
+  .andWhere("uuid", packageUUID )
+  .andWhere({userId})
+  .first()
+  .then(providedShipment => {
+    if (providedShipment) {
+      usps.requestData({ trackingNumber: providedShipment.trackingNumber }, (err, data) => {
+        if (err || typeof data.destination === "undefined") {
+          return res
+            .status(400)
+            .json({ message: "The tracking number on given shipment is not valid" });
+        }
+        req.result = {
+          ...providedShipment,
+          shippingData: data.activities
+        };
+        next();
+      });
+  }})
 }

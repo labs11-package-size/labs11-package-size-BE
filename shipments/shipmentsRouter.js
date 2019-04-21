@@ -1,7 +1,7 @@
 const router = require("express").Router();
 const db = require("../data/shipmentsModule.js");
 const { authenticate } = require("../api/globalMW.js");
-const { uspsTracking } = require("./shipmentsMW.js");
+const { uspsTracking, trackOne } = require("./shipmentsMW.js");
 
 router.post("/add/:uuid", authenticate, uspsTracking, (req, res) => {
   const { uuid } = req.params
@@ -129,5 +129,12 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
       res.status(code).json({ message });
     });
 });
+
+router.get("/:uuid", authenticate, trackOne, (req, res) => {
+  if (req.result) {
+    return res.status(200).json(req.result)
+  }
+  else return res.status(500).json({message: "internal server error"})
+})
 
 module.exports = router;
