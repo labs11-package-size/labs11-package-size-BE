@@ -49,23 +49,30 @@ class scannarUsps extends UspsClient {
   }
 
   presentResponse(response, requestData, cb) {
-    let reponseObject = {};
-    for (let i = 0; i <= requestData.length; i++) {
-      indexedTracking = {};
+    var responseObject = {};
+    for (let i = 0; i <= requestData.trackingNumber.length; i++) {
       this.responseFunc(response, i, (err, shipment) => {
+          console.log("looprunning")
         if (err || !shipment) {
           return cb(err);
         }
-
+        let eta = this.getEta(shipment);
+        let adjustedEta = moment(eta)
+          .utc()
+          .format()
+          .replace("T00:00:00", "T23:59:59");
         let { activities, status } = this.getActivitiesAndStatus(shipment);
-        let presentedResponse = {
+        let indexedTracking = {
+          eta: adjustedEta,
+          service: this.getService(shipment),
+          destination: this.getDestination(shipment),
+          status,
           activities,
-          status
         };
-
-        // responseObject[requestData.trackingNumber[i]] = indexedTracking;
+        responseObject[requestData.trackingNumber[i]] = indexedTracking;
       });
     }
+    console.log("responseObject", responseObject)
     return cb(null, responseObject);
   }
 
@@ -94,33 +101,3 @@ class scannarUsps extends UspsClient {
 }
 
 module.exports = { scannarUsps };
-
-// generateRequest(tnArray) {
-//     const trackingObjectArray = []
-//     tnArray.forEach(tn => {
-
-//     })
-//                     const generatedRequest = {
-//                         "TrackFieldRequest" :
-//                     }
-// }
-
-// super.validateResponse(response)((err, shipment) => {
-
-// })
-
-// let presentedResponse = {
-//     activities: "lolololol"
-//   };
-//   presentedResponse.raw = response
-//   presentedResponse.request = requestData
-//   return cb(null, presentedResponse)
-
-// if (requestData && requestData.raw) {
-//     presentedResponse.raw = response;
-//   } else {
-//     if (this.options && this.options.raw) {
-//       presentedResponse.raw = response;
-//     }
-//     presentedResponse.request = requestData;
-//   }
