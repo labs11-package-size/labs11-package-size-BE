@@ -32,10 +32,12 @@
     "knex": "^0.16.3",
     "moment": "^2.24.0",
     "morgan": "^1.9.1",
+    "request": "^2.88.0",
     "serve-static": "^1.13.2",
     "shipit": "^1.2.0",
     "sqlite3": "^4.0.6",
-    "uuid": "^3.3.2"
+    "uuid": "^3.3.2",
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "cross-env": "^5.2.0",

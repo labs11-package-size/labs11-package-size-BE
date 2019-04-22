@@ -4,7 +4,7 @@ const { authenticate } = require("../api/globalMW.js");
 const { uspsTracking, trackOne } = require("./shipmentsMW.js");
 
 router.post("/add/:uuid", authenticate, uspsTracking, (req, res) => {
-  const { uuid } = req.params
+  const { uuid } = req.params;
   const trackingdata = req.trackingObject;
   const userId = req.decoded.subject;
   db.addShipment(trackingdata, uuid.toLowerCase(), userId)
@@ -17,7 +17,7 @@ router.post("/add/:uuid", authenticate, uspsTracking, (req, res) => {
 });
 
 router.post("/addweb/:uuid", authenticate, uspsTracking, (req, res) => {
-  const { uuid } = req.params
+  const { uuid } = req.params;
   const trackingdata = req.trackingObject;
   const userId = req.decoded.subject;
   db.addShipmentWeb(trackingdata, uuid.toLowerCase(), userId)
@@ -40,7 +40,6 @@ router.get("/", authenticate, (req, res) => {
     });
 });
 
-
 router.get("/all", authenticate, (req, res) => {
   const userId = req.decoded.subject;
   db.getAllShipments(userId)
@@ -51,7 +50,6 @@ router.get("/all", authenticate, (req, res) => {
       res.status(code).json({ message });
     });
 });
-
 
 router.delete("/delete/:uuid", authenticate, (req, res) => {
   const userId = req.decoded.subject;
@@ -132,9 +130,14 @@ router.put("/edit/:uuid", authenticate, (req, res) => {
 
 router.get("/:uuid", authenticate, trackOne, (req, res) => {
   if (req.result) {
-    return res.status(200).json(req.result)
-  }
-  else return res.status(500).json({message: "internal server error"})
-})
+    return res.status(200).json(req.result);
+  } else return res.status(500).json({ message: "internal server error" });
+});
 
-module.exports = router;
+server.post("/test", authenticate, serverTracking, (req, res) => {
+  if (req.trackingObject) {
+    return res.status(200).json(req.trackingObject);
+  } else return res.status(500).json({ message: "internal server error" });
+});
+
+router.module.exports = router;

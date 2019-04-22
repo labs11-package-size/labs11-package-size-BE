@@ -1,14 +1,29 @@
+const { scannarUsps } = require("../shipit/scannarUsps");
 const { UspsClient } = require("shipit");
 const usps = new UspsClient({ userId: `${process.env.TRACKUSERNAME}` });
+const uspsArray = new scannarUsps({ userId: `${process.env.TRACKUSERNAME}` });
 const db = require("../data/dbConfig.js");
 const moment = require("moment");
 
 module.exports = {
   uspsTracking,
-  trackOne
+  trackOne,
+  testingShipit
 };
 
-// trackingNumber's value needs to be string format
+
+function testingShipit(req, res, next) {
+uspsArray.requestData({trackingNumber: ["9534612116879084152017","9405509699938306832585"]}, (err, data) => {
+  if (err || typeof data.destination === "undefined") {
+    return res
+      .status(400)
+      .json({ message: "The tracking number supplied is not valid" });
+  }
+  req.trackingObject = data;
+  next();
+})
+}
+
 function uspsTracking(req, res, next) {
   const userId = req.decoded.subject;
   const trackingNumber = req.body.trackingNumber;
@@ -105,22 +120,31 @@ function trackOne(req, res, next) {
     "lastUpdated",
   )
   .where({uuid})
+  .andWhere("tracked", true)
   .andWhere("uuid", packageUUID )
   .andWhere({userId})
   .first()
   .then(providedShipment => {
     if (providedShipment) {
       usps.requestData({ trackingNumber: providedShipment.trackingNumber }, (err, data) => {
-        if (err || typeof data.destination === "undefined") {
+        if (err) {
           return res
             .status(400)
             .json({ message: "The tracking number on given shipment is not valid" });
         }
         req.result = {
           ...providedShipment,
-          shippingData: data.activities
+          shippingData: data
         };
         next();
       });
-  }})
+  } else {
+    return res.status(404).json({
+      message: "No matching package found in this user's list for given UUID"
+    });
+  }
+
+})
+
 }
+
