@@ -15,7 +15,6 @@ class scannarUsps extends UspsClient {
       return self.indexOf(value) === index;
     };
     var uniquetrk = trk.filter(onlyUnique);
-    console.log(uniquetrk);
     let trackingArray = [];
     uniquetrk.forEach(tn => {
       trackingArray.push(`<TrackID ID="${tn}"/>`);
@@ -52,7 +51,6 @@ class scannarUsps extends UspsClient {
     var responseObject = {};
     for (let i = 0; i <= requestData.trackingNumber.length; i++) {
       this.responseFunc(response, i, (err, shipment) => {
-          console.log("looprunning")
         if (err || !shipment) {
           return cb(err);
         }
@@ -72,7 +70,6 @@ class scannarUsps extends UspsClient {
         responseObject[requestData.trackingNumber[i]] = indexedTracking;
       });
     }
-    console.log("responseObject", responseObject)
     return cb(null, responseObject);
   }
 

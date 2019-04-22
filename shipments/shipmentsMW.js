@@ -52,7 +52,7 @@ function uspsTracking(req, res, next) {
     .then(found => {
       if (found) {
         usps.requestData({ trackingNumber }, (err, data) => {
-          if (err || typeof data.destination === "undefined") {
+          if (err || !data || !data.activities.length) {
             return res
               .status(400)
               .json({ message: "The tracking number supplied is not valid" });
@@ -126,7 +126,7 @@ function trackOne(req, res, next) {
   .then(providedShipment => {
     if (providedShipment) {
       usps.requestData({ trackingNumber: providedShipment.trackingNumber }, (err, data) => {
-        if (err) {
+        if (err || !data || !data.activities.length) {
           return res
             .status(400)
             .json({ message: "The tracking number on given shipment is not valid" });
