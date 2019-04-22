@@ -14,11 +14,9 @@ module.exports = {
 
 function testingShipit(req, res, next) {
   const userId = req.decoded.subject;
-uspsArray.requestData({trackingNumber: ["9534612116879084152017","9405509699938306832585"]}, (err, data) => {
-  if (err || typeof data.destination === "undefined") {
-    return res
-      .status(400)
-      .json({ message: "The tracking number supplied is not valid" });
+uspsArray.requestData({trackingNumber: ["9534612116879084152017","9405509699938306832585","9405509699938306832585"]}, (err, data) => {
+  if (err) {
+    return (err)
   }
   req.trackingObject = data;
   next();

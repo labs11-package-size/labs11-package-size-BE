@@ -6,55 +6,74 @@ const request = require("request");
 class scannarUsps extends UspsClient {
   constructor({ userId }, options) {
     super({ userId }, options);
-    this.builder = new Builder({renderOpts: {pretty: false}})
+    this.parser = new Parser();
+    this.builder = new Builder({ renderOpts: { pretty: false } });
   }
-// The below code with string.indexOf assumed userid is always 12 characters
-  generateRequest(trk) {
-      let trackingArray = []
-      trk.forEach(tn => {
-          trackingArray.push(`<TrackID ID="${tn}"/>`)
-      })
-      const unparsedObject = {
-          'TrackFieldRequest': {
-            '$': {'USERID': this.userId},
-            'Revision': "1",
-            'ClientIp': "127.0.0.1",
-            'SourceId': "shipit",
-          }
+  // The below code with string.indexOf assumed userid is always 12 characters
+  generateRequest(trk, clientIp) {
+    let onlyUnique = (value, index, self) => {
+      return self.indexOf(value) === index;
+    };
+    var uniquetrk = trk.filter(onlyUnique);
+    console.log(uniquetrk);
+    let trackingArray = [];
+    uniquetrk.forEach(tn => {
+      trackingArray.push(`<TrackID ID="${tn}"/>`);
+    });
+    const unparsedObject = {
+      TrackFieldRequest: {
+        $: { USERID: this.userId },
+        Revision: "1",
+        ClientIp: "127.0.0.1",
+        SourceId: "shipit"
       }
-      let baseXML = this.builder.buildObject(unparsedObject)
-    console.log(`${baseXML.slice(0, 175)}${trackingArray.join('')}${baseXML.slice(175)}`)
+    };
+    let baseXML = this.builder.buildObject(unparsedObject);
+    return `${baseXML.slice(0, 175)}${trackingArray.join("")}${baseXML.slice(
+      175
+    )}`;
+  }
+
+  responseFunc(response, infoIndex, cb) {
+    var handleResponse = (xmlErr, trackResult) => {
+      if (trackResult["TrackResponse"]["TrackInfo"][infoIndex]) {
+        let trackInfo = trackResult["TrackResponse"]["TrackInfo"][infoIndex];
+        if (xmlErr || !trackInfo) {
+          return cb(xmlErr);
+        }
+        return cb(null, trackInfo);
+      }
+    };
+    this.parser.reset();
+    this.parser.parseString(response, handleResponse);
   }
 
   presentResponse(response, requestData, cb) {
-    this.validateResponse(response, (err, shipment) => {
-      if (err || !shipment) {
-        return err;
-      }
-      let { activities, status } = this.getActivitiesAndStatus(shipment);
-      let eta = this.getEta(shipment);
-      let adjustedEta = moment(eta)
-        .utc()
-        .format()
-        .replace("T00:00:00", "T23:59:59");
-      let presentedResponse = {
-        activities,
-        status
-      };
-      console.log("any activites", presentedResponse);
-      if (requestData && requestData.raw) {
-        presentedResponse.raw = response;
-      } else {
-        if (this.options && this.options.raw) {
-          presentedResponse.raw = response;
+    let reponseObject = {};
+    for (let i = 0; i <= requestData.length; i++) {
+      indexedTracking = {};
+      this.responseFunc(response, i, (err, shipment) => {
+        if (err || !shipment) {
+          return cb(err);
         }
-        presentedResponse.request = requestData;
-      }
-      return cb(null, presentedResponse);
-    });
+
+        let { activities, status } = this.getActivitiesAndStatus(shipment);
+        let presentedResponse = {
+          activities,
+          status
+        };
+
+        // responseObject[requestData.trackingNumber[i]] = indexedTracking;
+      });
+    }
+    return cb(null, responseObject);
   }
 
   requestData(requestData, cb) {
+    let onlyUnique = (value, index, self) => {
+      return self.indexOf(value) === index;
+    };
+    requestData.trackingNumber = requestData.trackingNumber.filter(onlyUnique);
     let opts = this.requestOptions(requestData);
     if (requestData.timeout) {
       opts.timeout = requestData.timeout;
@@ -66,8 +85,9 @@ class scannarUsps extends UspsClient {
       if (!body || err) {
         return cb(err);
       }
-      if (response.statusCode !== 200)
+      if (response.statusCode !== 200) {
         return cb(`response status ${response.statusCode}`);
+      }
       return this.presentResponse(body, requestData, cb);
     });
   }
@@ -95,3 +115,12 @@ module.exports = { scannarUsps };
 //   presentedResponse.raw = response
 //   presentedResponse.request = requestData
 //   return cb(null, presentedResponse)
+
+// if (requestData && requestData.raw) {
+//     presentedResponse.raw = response;
+//   } else {
+//     if (this.options && this.options.raw) {
+//       presentedResponse.raw = response;
+//     }
+//     presentedResponse.request = requestData;
+//   }
