@@ -118,9 +118,8 @@ function trackOne(req, res, next) {
     "uuid",
     "lastUpdated",
   )
-  .where({uuid})
+  .where("uuid", packageUUID)
   .andWhere("tracked", true)
-  .andWhere("uuid", packageUUID )
   .andWhere({userId})
   .first()
   .then(providedShipment => {
