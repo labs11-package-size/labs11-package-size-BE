@@ -188,6 +188,11 @@ function getDetail(uuid, userId, pageQuery) {
     .first()
     .then(foundProduct => {
       return db("shipments")
+        .count({ count: '*' })
+        .where("productUuids", "like", `%${uuid}%`)
+        .andWhere({ userId })
+    .then(count => {
+      return db("shipments")
         .select(
           "lastUpdated",
           "dateShipped",
@@ -204,10 +209,14 @@ function getDetail(uuid, userId, pageQuery) {
     .offset((pageQuery - 1) * 3)
         .then(foundShipments => {
           foundProduct.shipments = foundShipments;
+          foundProduct.shipmentsCount = count[0].count;
           return foundProduct;
         });
     })
     .catch(() => {
       return null;
     });
+}).catch(() => {
+  return null;
+})
 }
