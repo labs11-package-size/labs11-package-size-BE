@@ -12,7 +12,7 @@ const fakerShipments = (namesObject, uuidObject) => {
         tracked: true,
         dateShipped: moment(faker.date.past()).format("YYYY-MM-DD"),
         dateArrived: moment(faker.date.past()).format("YYYY-MM-DD"),
-        shippedTo: `${faker.address.city()}, ${faker.address.stateAbbr()} ${faker.address.zipCode()}`,
+        shippedTo: "Rowland Heights, CA 91748",
         status: Math.floor(Math.random() * (5)) + 1,
         uuid: uuidTimestamp(),
         lastUpdated: currenttime,
