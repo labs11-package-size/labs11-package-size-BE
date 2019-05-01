@@ -10,6 +10,11 @@ exports.seed = function(knex, Promise) {
         { productId: 503, pendingShipmentsId: 503},
         { productId: 504, pendingShipmentsId: 504},
         { productId: 505, pendingShipmentsId: 505},
+        { productId: 506, pendingShipmentsId: 506},
+        { productId: 507, pendingShipmentsId: 507},
+        { productId: 508, pendingShipmentsId: 508},
+        { productId: 509, pendingShipmentsId: 509},
+        { productId: 510, pendingShipmentsId: 510},
       ]);
     });
 };

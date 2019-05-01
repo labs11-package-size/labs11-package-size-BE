@@ -4,11 +4,10 @@ exports.seed = function(knex, Promise) {
     // Inserts seed entries
     return knex("users").insert({
       identifier: 501,
-      displayName: "Ben Hakes",
+      displayName: "John Doe",
       uuid: "28e13892-4ffa-11e9-8647-d663bd873d93",
-      email: "bhhakes@gmail.com ",
-      uid: "c9PjadaVBTY0f2BbYxmhvTkqYID2",
-      photoURL: "https://ca.slack-edge.com/T4JUEB3ME-UAUHTHMSS-74f09cf4b805-48"
+      email: "scannardummylogin@gmail.com",
+      uid: "cn5x8lJ387S0yCdZeYvZMVfvi0g2"
     });
   });
 };

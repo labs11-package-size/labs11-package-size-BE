@@ -6,7 +6,7 @@ const db = require("../dbConfig.js");
 const fakerShipments = (namesObject, uuidObject) => {
   const currenttime = moment().format("YYYY-MM-DD hh:mm:ss")
   let productsArray = [];
-    for (p = 1; p <= 5; p++) {
+    for (p = 1; p <= 10; p++) {
       productsArray.push({
         identifier: 500+p,
         tracked: true,

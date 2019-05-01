@@ -5,7 +5,7 @@ const uuidTimestamp = require("uuid/v1")
 const productsFactory = () => {
   const currenttime = moment().format("YYYY-MM-DD hh:mm:ss")
   const productsArray = []
-for (p = 1; p <= 5; p++) {
+for (p = 1; p <= 10; p++) {
   productsArray.push({
     identifier: 500+p,
     name: faker.commerce.productName(),
