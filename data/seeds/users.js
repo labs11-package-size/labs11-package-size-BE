@@ -33,7 +33,7 @@ const fakerUsers = () => {
       displayName: "Ben Hakes",
       uuid: uuidTimestamp(),
       email: "ben@paretoadvisors.com",
-      uid: "EdfZQhFTBtSQkO7iMwbDOn6LeQ23",
+      uid: "c9PjadaVBTY0f2BbYxmhvTkqYID2",
       photoURL: "https://ca.slack-edge.com/T4JUEB3ME-UAUHTHMSS-74f09cf4b805-48"
     },
     {
