@@ -5,10 +5,10 @@ const fakerUsers = () => {
   let usersArray = [
     {
       identifier: 1,
-      displayName: "Jacob Bryan",
+      displayName: "Test User",
       uuid: uuidTimestamp(),
-      email: "jbryantech228@gmail.com",
-      uid: "q1lHIM09fnWMAxZ6t116rkaS92E2",
+      email: "testscannar@outlook.com",
+      uid: "nRUFuCdrFMenksbiCHHOT5mD8yx2",
       photoURL: "https://ca.slack-edge.com/T4JUEB3ME-UDHUTSKJL-45af9760ac24-48"
     },
     {
