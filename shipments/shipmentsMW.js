@@ -1,13 +1,28 @@
+const { scannarUsps } = require("../shipit/scannarUsps");
 const { UspsClient } = require("shipit");
 const usps = new UspsClient({ userId: `${process.env.TRACKUSERNAME}` });
+const uspsArray = new scannarUsps({ userId: `${process.env.TRACKUSERNAME}` });
 const db = require("../data/dbConfig.js");
 const moment = require("moment");
 
 module.exports = {
-  uspsTracking
+  uspsTracking,
+  trackOne,
+  testingShipit
 };
 
-// trackingNumber's value needs to be string format
+
+function testingShipit(req, res, next) {
+  const userId = req.decoded.subject;
+uspsArray.requestData({trackingNumber: ["9534612116879084152017"," 9449009699937898627981","9400109699937317126628","9405509699938306832585","9449011899560661168926","9341989675090146657520","9400109699938635947919","9400109699938642545344","9400109699939137094064","9400109699937800622606","9400109699939152816313"]}, (err, data) => {
+  if (err) {
+    return (err)
+  }
+  req.trackingObject = data;
+  next();
+})
+}
+
 function uspsTracking(req, res, next) {
   const userId = req.decoded.subject;
   const trackingNumber = req.body.trackingNumber;
@@ -15,7 +30,7 @@ function uspsTracking(req, res, next) {
   if (!uuid) {
     return res.status(400).json({
       message:
-        "Invalid Request, please include a uuid in the url parameter"
+        "Invalid Request, please include a uuid of a package object in the url parameter"
     });
   }
   const packageUUID = uuid.toLowerCase()
@@ -37,7 +52,7 @@ function uspsTracking(req, res, next) {
     .then(found => {
       if (found) {
         usps.requestData({ trackingNumber }, (err, data) => {
-          if (err) {
+          if (err || !data || !data.activities.length) {
             return res
               .status(400)
               .json({ message: "The tracking number supplied is not valid" });
@@ -46,6 +61,7 @@ function uspsTracking(req, res, next) {
             data.activities[data.activities.length - 1].timestamp
           ).format("YYYY-MM-DD");
           req.trackingObject = {
+            tracked: true,
             lastUpdated: currentDate,
             dateShipped: parsedDate,
             shippedTo: data.destination,
@@ -57,6 +73,7 @@ function uspsTracking(req, res, next) {
             totalWeight: found.totalWeight,
             productNames: found.productNames,
             productUuids: found.productUuids,
+            modelURL: found.modelURL,
             userId
           };
           next();
@@ -71,3 +88,61 @@ function uspsTracking(req, res, next) {
       res.status(code).json({ message });
     });
 }
+
+function trackOne(req, res, next) {
+  const userId = req.decoded.subject;
+  const { uuid }  = req.params
+  if (!uuid) {
+    return res.status(400).json({
+      message:
+        "Invalid Request, please include a uuid of a package object in the url parameter"
+    });
+  }
+  const packageUUID = uuid.toLowerCase()
+  const currentDate = moment().format("YYYY-MM-DD hh:mm:ss");
+  return db("shipments")
+  .select(
+    "tracked",
+    "modelURL",
+    "dateShipped",
+    "dateArrived",
+    "productNames",
+    "productUuids",
+    "totalWeight",
+    "shippedTo",
+    "trackingNumber",
+    "carrierName",
+    "shippingType",
+    "dimensions",
+    "status",
+    "uuid",
+    "lastUpdated",
+  )
+  .where("uuid", packageUUID)
+  .andWhere("tracked", true)
+  .andWhere({userId})
+  .first()
+  .then(providedShipment => {
+    if (providedShipment) {
+      usps.requestData({ trackingNumber: providedShipment.trackingNumber }, (err, data) => {
+        if (err || !data || !data.activities.length) {
+          return res
+            .status(400)
+            .json({ message: "The tracking number on given shipment is not valid" });
+        }
+        req.result = {
+          ...providedShipment,
+          shippingData: data
+        };
+        next();
+      });
+  } else {
+    return res.status(404).json({
+      message: "No matching package found in this user's list for given UUID"
+    });
+  }
+
+})
+
+}
+

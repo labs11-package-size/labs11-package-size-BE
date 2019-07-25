@@ -14,9 +14,9 @@ exports.up = function(knex, Promise) {
       column.string("productDescription", 512).defaultTo("");
       column.decimal("weight", 9, 2).defaultTo(0);
       column.decimal("value", 9, 2).defaultTo(0);
-      column.decimal("length", 9, 2).notNullable();
-      column.decimal("width", 9, 2).notNullable();
-      column.decimal("height", 9, 2).notNullable();
+      column.decimal("length", 9, 2).defaultTo(0);
+      column.decimal("width", 9, 2).defaultTo(0);
+      column.decimal("height", 9, 2).defaultTo(0);
       column.string("manufacturerId", 512).defaultTo("");
       column.boolean("fragile").defaultTo(false);
       column.string("thumbnail", 512).defaultTo("");
@@ -78,28 +78,30 @@ exports.up = function(knex, Promise) {
     })
     .createTable("pendingShipments", column => {
       column.increments("identifier");
+      column.boolean("tracked")
       column.decimal("totalWeight", 9, 2).defaultTo(121.34);
-      column.string("modelURL", 512);
+      column.string("modelURL", 512).defaultTo("");
       column.string("dimensions", 24).notNullable();
+      column.string("productUuids", 512).defaultTo("");
+      column.string("productNames", 512).notNullable();
       column.uuid("uuid");
       column.date("lastUpdated", 24).defaultTo("");
-      column.string("productUuids", 512).defaultTo("");
       column
-        .integer("userId")
-        .unsigned()
-        .references("identifier")
-        .inTable("users")
-        .onDelete("CASCADE")
-        .onUpdate("CASCADE");
-      column.string("productNames", 512).notNullable();
+      .integer("userId")
+      .unsigned()
+      .references("identifier")
+      .inTable("users")
+      .onDelete("CASCADE")
+      .onUpdate("CASCADE");
     })
     .createTable("shipments", column => {
       column.increments("identifier");
+      column.boolean("tracked")
+      column.string("modelURL", 512).defaultTo("");
       column.date("dateShipped", 24).defaultTo("");
       column.date("dateArrived", 24).defaultTo("");
       column.string("productNames", 512).notNullable();
       column.string("productUuids", 512).defaultTo("");
-      column.string("shipmentUuids", 512).defaultTo("")
       column.decimal("totalWeight", 9, 2).defaultTo(121.34);
       column.string("shippedTo", 512).defaultTo("");
       column.string("trackingNumber", 128).defaultTo("");

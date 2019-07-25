@@ -5,17 +5,23 @@ const moment = require("moment");
 
 module.exports = {
   getShipments,
+  getAllShipments,
   addShipment,
+  addShipmentWeb,
   deleteShipment,
-  editShipment
+  deleteShipmentWeb,
+  editShipment,
 };
 
 function getShipments(userId) {
   return db("shipments")
     .select(
+      "tracked",
+      "modelURL",
       "dateShipped",
       "dateArrived",
       "productNames",
+      "productUuids",
       "totalWeight",
       "shippedTo",
       "trackingNumber",
@@ -25,7 +31,6 @@ function getShipments(userId) {
       "status",
       "uuid",
       "lastUpdated",
-      "productUuids"
     )
     .where({ userId })
     .then(shipmentsArray => {
@@ -37,12 +42,78 @@ function getShipments(userId) {
     });
 }
 
-async function addShipment(shipment, userId) {
+function getAllShipments(userId) {
+  return db("pendingShipments")
+  .select(
+    "tracked",
+    "totalWeight",
+    "modelURL",
+    "dimensions",
+    "productUuids",
+    "productNames",
+    "uuid",
+    "lastUpdated"
+  )
+  .where({ userId })
+  .then(foundPackages => {
+    const parsedPackages = foundPackages.map(packageObject => {
+      packageObject.productNames = packageObject.productNames.split(",");
+      packageObject.productUuids = packageObject.productUuids.split(",");
+      return packageObject
+    })
+
+  return db("shipments")
+    .select(
+      "tracked",
+      "modelURL",
+      "dateShipped",
+      "dateArrived",
+      "productNames",
+      "productUuids",
+      "totalWeight",
+      "shippedTo",
+      "trackingNumber",
+      "carrierName",
+      "shippingType",
+      "dimensions",
+      "status",
+      "uuid",
+      "lastUpdated",
+    )
+    .where({ userId })
+    .then(shipmentsArray => {
+      const parsedShipments = shipmentsArray.map(shipmentObject => {
+        shipmentObject.productNames = shipmentObject.productNames.split(",");
+        shipmentObject.productUuids = shipmentObject.productUuids.split(",");
+        return shipmentObject;
+      });
+      return parsedPackages.concat(parsedShipments)
+    });
+  })
+}
+
+async function addShipment(shipment, uuid, userId) {
   await db("shipments").insert({
     ...shipment,
     uuid: uuidTimestamp()
   });
+  await db("pendingShipments")
+  .where({ uuid })
+  .andWhere({ userId })
+  .del()
   return getShipments(userId);
+}
+
+async function addShipmentWeb(shipment, uuid, userId) {
+  await db("shipments").insert({
+    ...shipment,
+    uuid: uuidTimestamp()
+  });
+  await db("pendingShipments")
+  .where({ uuid })
+  .andWhere({ userId })
+  .del()
+  return getAllShipments(userId);
 }
 
 async function deleteShipment(uuid, userId) {
@@ -61,6 +132,26 @@ async function deleteShipment(uuid, userId) {
     .andWhere({ userId })
     .del();
   if (deleted) return getShipments(userId);
+  return null;
+}
+}
+
+async function deleteShipmentWeb(uuid, userId) {
+  if (uuid.length > 50) {
+    const uuidArray = await uuid.split(',')
+    const deleted = await db("shipments")
+    .whereIn("uuid", uuidArray)
+    .andWhere({ userId })
+    .del();
+    if (deleted) return getAllShipments(userId)
+    return null
+  }
+  else {
+  const deleted = await db("shipments")
+    .where({ uuid })
+    .andWhere({ userId })
+    .del();
+  if (deleted) return getAllShipments(userId);
   return null;
 }
 }

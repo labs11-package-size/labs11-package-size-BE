@@ -4,6 +4,7 @@ const moment = require("moment");
 
 module.exports = {
   getProducts,
+  getProductsLimited,
   addProduct,
   deleteProduct,
   editProduct,
@@ -12,30 +13,11 @@ module.exports = {
   getProductName,
   getDimensions,
   getUUIDs,
-  getProductNames
+  getProductNames,
+  getDetail
 };
 
 function getProducts(userId) {
-  const list = db("products")
-    .select(
-      "identifier",
-      "name",
-      "productDescription",
-      "weight",
-      "value",
-      "length",
-      "width",
-      "height",
-      "manufacturerId",
-      "fragile",
-      "thumbnail",
-      "uuid",
-      "lastUpdated",
-      "images"
-    )
-    .where({ userId })
-	.limit(20);
-
   return db("products")
     .select(
       "identifier",
@@ -54,8 +36,37 @@ function getProducts(userId) {
       "images"
     )
     .where({ userId })
+    .orderBy("lastUpdated", "desc")
+    .then(productsArray => {
+      return productsArray.map(productObject => {
+        productObject.images = productObject.images.split(",");
+        return productObject;
+      });
+    });
+}
 
-    .offset(list.length)
+function getProductsLimited(userId, limitQuery, pageQuery) {
+  return db("products")
+    .select(
+      "identifier",
+      "name",
+      "productDescription",
+      "weight",
+      "value",
+      "length",
+      "width",
+      "height",
+      "manufacturerId",
+      "fragile",
+      "thumbnail",
+      "uuid",
+      "lastUpdated",
+      "images"
+    )
+    .where({ userId })
+    .limit(limitQuery)
+    .offset((pageQuery - 1) * limitQuery)
+    .orderBy("lastUpdated", "desc")
     .then(productsArray => {
       return productsArray.map(productObject => {
         productObject.images = productObject.images.split(",");
@@ -66,15 +77,15 @@ function getProducts(userId) {
 
 async function addProduct(product, userId) {
   if (product.images) {
-    product.images = product.images.join()
+    product.images = product.images.join();
   }
   const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss");
-    await db("products").insert({
-      ...product,
-      userId: userId,
-      uuid: uuidTimestamp(),
-      lastUpdated: currentDate,
-    })
+  await db("products").insert({
+    ...product,
+    userId: userId,
+    uuid: uuidTimestamp(),
+    lastUpdated: currentDate
+  });
   return getProducts(userId);
 }
 
@@ -99,19 +110,16 @@ async function deleteProduct(uuid, userId) {
   return null;
 }
 
-async function editProduct(uuid, userId, changes, images) {
+async function editProduct(uuid, userId, changes) {
+  console.log("edit changes", changes)
   const currentDate = await moment().format("YYYY-MM-DD hh:mm:ss");
-  if (images) {
-    const edited = await db("products")
-      .where({ uuid })
-      .update({ ...changes, lastUpdated: currentDate, images: images.join() });
-    if (edited) return getProducts(userId);
-  } else {
-    const edited = await db("products")
-      .where({ uuid })
-      .update({ ...changes, lastUpdated: currentDate });
-    if (edited) return getProducts(userId);
+  if (changes.images) {
+    changes.images = changes.images.join();
   }
+  const edited = await db("products")
+    .where({ uuid })
+    .update({ ...changes, lastUpdated: currentDate });
+  if (edited) return getProducts(userId);
   return null;
 }
 
@@ -155,4 +163,60 @@ function getUUIDs(eachItem) {
   return db("products")
     .select("identifier", "uuid")
     .whereIn("identifier", eachItem);
+}
+
+function getDetail(uuid, userId, pageQuery) {
+  return db("products")
+    .select(
+      "identifier",
+      "name",
+      "productDescription",
+      "weight",
+      "value",
+      "length",
+      "width",
+      "height",
+      "manufacturerId",
+      "fragile",
+      "thumbnail",
+      "uuid",
+      "lastUpdated",
+      "images"
+    )
+    .where({ userId })
+    .andWhere({ uuid })
+    .first()
+    .then(foundProduct => {
+      return db("shipments")
+        .count({ count: '*' })
+        .where("productUuids", "like", `%${uuid}%`)
+        .andWhere({ userId })
+    .then(count => {
+      return db("shipments")
+        .select(
+          "lastUpdated",
+          "dateShipped",
+          "shippedTo",
+          "dateArrived",
+          "trackingNumber",
+          "status",
+          "carrierName"
+        )
+        .where("productUuids", "like", `%${uuid}%`)
+        .andWhere({ userId })
+        .orderBy("lastUpdated", "desc")
+        .limit(3)
+    .offset((pageQuery - 1) * 3)
+        .then(foundShipments => {
+          foundProduct.shipments = foundShipments;
+          foundProduct.shipmentsCount = count[0].count;
+          return foundProduct;
+        });
+    })
+    .catch(() => {
+      return null;
+    });
+}).catch(() => {
+  return null;
+})
 }

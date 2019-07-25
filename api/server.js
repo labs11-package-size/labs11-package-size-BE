@@ -24,7 +24,7 @@ const testconfigvar = process.env.TESTINGVAR;
 
 server.use(express.json());
 server.use(cors());
-server.use(helmet());
+server.use(helmet({frameguard: false}));
 server.use(
   serveStatic("serveStatic", { index: ["default.html", "default.htm"] })
 );
